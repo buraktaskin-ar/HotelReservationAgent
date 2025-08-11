@@ -57,3 +57,4 @@ D:\VisualStudioCode Projects repos\HotelReservationAgentChatBot\obj\Debug\net8.0
 D:\VisualStudioCode Projects repos\HotelReservationAgentChatBot\obj\Debug\net8.0\ref\HotelReservationAgentChatBot.dll
 D:\VisualStudioCode Projects repos\HotelReservationAgentChatBot\bin\Debug\net8.0\Frontend\package.json
 D:\VisualStudioCode Projects repos\HotelReservationAgentChatBot\bin\Debug\net8.0\Frontend\public\manifest.json
+D:\VisualStudioCode Projects repos\HotelReservationAgentChatBot\bin\Debug\net8.0\Frontend\package-lock.json

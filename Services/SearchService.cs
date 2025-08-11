@@ -16,77 +16,7 @@ public class SearchService
         _searchClient = searchClient;
         _embeddingService = embeddingService;
     }
-    // iptal politikası sorularını hem full-text hem de vektör bazlı hibrit aramayla yanıtlamak için tasarlanmıştır
-    //public async Task<SearchResults<HotelSearchDocument>> SearchCancellationPolicyAsync(string query)
-    //{
-    //    var embedding = await _embeddingService.GenerateEmbeddingAsync(query);
-
-    //    var options = new SearchOptions
-    //    {
-    //        Size = 3,
-    //        QueryType = SearchQueryType.Full,
-    //        SearchFields = { nameof(HotelSearchDocument.CancellationPolicy) },
-    //        VectorSearch = new VectorSearchOptions
-    //        {
-    //            Queries = {
-    //            new VectorizedQuery(embedding.ToArray())
-    //            {
-    //                KNearestNeighborsCount = 3,
-    //                Fields = { nameof(HotelSearchDocument.DescriptionVector) },
-    //                Weight = 0.3f
-    //            }
-    //        }
-    //        }
-    //    };
-
-    //    return await _searchClient.SearchAsync<HotelSearchDocument>(query, options);
-    //}
-
-    //doğrudan filtre ardından sıralama yapacak, vektör veya tam metin kullanmayacak bir senaryoya odaklıdır.
-    //public async Task<SearchResults<HotelSearchDocument>> SearchWithAmenitiesFilterAsync(double maxPrice)
-    //{
-    //    var filter = $"{nameof(HotelSearchDocument.HasGym)} eq true and " +
-    //                $"{nameof(HotelSearchDocument.HasPool)} eq true and " +
-    //                $"{nameof(HotelSearchDocument.PricePerNight)} le {maxPrice}";
-
-    //    var options = new SearchOptions
-    //    {
-    //        Size = 5,
-    //        Filter = filter,
-    //        OrderBy = { $"{nameof(HotelSearchDocument.PricePerNight)} asc" }
-    //    };
-
-    //    return await _searchClient.SearchAsync<HotelSearchDocument>("*", options);
-    //}
-
-
-
-    //Bu metot, yalnızca vektör sinyaline dayalı bir semantik arama senaryosudur
-    //public async Task<SearchResults<HotelSearchDocument>> SearchSemanticAsync(string query)
-    //{
-    //    var embedding = await _embeddingService.GenerateEmbeddingAsync(query);
-
-    //    var options = new SearchOptions
-    //    {
-    //        Size = 3,
-    //        VectorSearch = new VectorSearchOptions
-    //        {
-    //            Queries = {
-    //            new VectorizedQuery(embedding.ToArray())
-    //            {
-    //                KNearestNeighborsCount = 3,
-    //                Fields = {
-    //                    nameof(HotelSearchDocument.DescriptionVector),
-    //                    nameof(HotelSearchDocument.AmenitiesVector)
-    //                }
-    //            }
-    //        }
-    //        }
-    //    };
-
-    //    return await _searchClient.SearchAsync<HotelSearchDocument>(null, options);
-    //}
-
+    
     public async Task<(SearchOptions Options, bool UseTextSearch)> BuildSmartSearchOptionsAsync(string query)
     {
         var options = new SearchOptions { Size = 5 };
@@ -187,4 +117,103 @@ public class SearchService
             options.SearchFields.Add(nameof(HotelSearchDocument.Amenities));
         }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // iptal politikası sorularını hem full-text hem de vektör bazlı hibrit aramayla yanıtlamak için tasarlanmıştır
+    //public async Task<SearchResults<HotelSearchDocument>> SearchCancellationPolicyAsync(string query)
+    //{
+    //    var embedding = await _embeddingService.GenerateEmbeddingAsync(query);
+
+    //    var options = new SearchOptions
+    //    {
+    //        Size = 3,
+    //        QueryType = SearchQueryType.Full,
+    //        SearchFields = { nameof(HotelSearchDocument.CancellationPolicy) },
+    //        VectorSearch = new VectorSearchOptions
+    //        {
+    //            Queries = {
+    //            new VectorizedQuery(embedding.ToArray())
+    //            {
+    //                KNearestNeighborsCount = 3,
+    //                Fields = { nameof(HotelSearchDocument.DescriptionVector) },
+    //                Weight = 0.3f
+    //            }
+    //        }
+    //        }
+    //    };
+
+    //    return await _searchClient.SearchAsync<HotelSearchDocument>(query, options);
+    //}
+
+    //doğrudan filtre ardından sıralama yapacak, vektör veya tam metin kullanmayacak bir senaryoya odaklıdır.
+    //public async Task<SearchResults<HotelSearchDocument>> SearchWithAmenitiesFilterAsync(double maxPrice)
+    //{
+    //    var filter = $"{nameof(HotelSearchDocument.HasGym)} eq true and " +
+    //                $"{nameof(HotelSearchDocument.HasPool)} eq true and " +
+    //                $"{nameof(HotelSearchDocument.PricePerNight)} le {maxPrice}";
+
+    //    var options = new SearchOptions
+    //    {
+    //        Size = 5,
+    //        Filter = filter,
+    //        OrderBy = { $"{nameof(HotelSearchDocument.PricePerNight)} asc" }
+    //    };
+
+    //    return await _searchClient.SearchAsync<HotelSearchDocument>("*", options);
+    //}
+
+
+
+    //Bu metot, yalnızca vektör sinyaline dayalı bir semantik arama senaryosudur
+    //public async Task<SearchResults<HotelSearchDocument>> SearchSemanticAsync(string query)
+    //{
+    //    var embedding = await _embeddingService.GenerateEmbeddingAsync(query);
+
+    //    var options = new SearchOptions
+    //    {
+    //        Size = 3,
+    //        VectorSearch = new VectorSearchOptions
+    //        {
+    //            Queries = {
+    //            new VectorizedQuery(embedding.ToArray())
+    //            {
+    //                KNearestNeighborsCount = 3,
+    //                Fields = {
+    //                    nameof(HotelSearchDocument.DescriptionVector),
+    //                    nameof(HotelSearchDocument.AmenitiesVector)
+    //                }
+    //            }
+    //        }
+    //        }
+    //    };
+
+    //    return await _searchClient.SearchAsync<HotelSearchDocument>(null, options);
+    //}
+
+
+
+
 }

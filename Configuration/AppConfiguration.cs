@@ -12,6 +12,8 @@ public class AppConfiguration
 
     public static AppConfiguration Load()
     {
+        
+
         return new AppConfiguration
         {
             SearchEndpoint = Environment.GetEnvironmentVariable("AZURE_SEARCH_ENDPOINT")

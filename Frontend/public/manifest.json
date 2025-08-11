@@ -1,6 +1,6 @@
 {
   "short_name": "Hotel ChatBot",
-  "name": "Hotel Rezervasyon Asistaný",
+  "name": "Hotel Rezervasyon Asistanï¿½",
   "icons": [
     {
       "src": "favicon.ico",
@@ -12,4 +12,4 @@
   "display": "standalone",
   "theme_color": "#2563eb",
   "background_color": "#ffffff",
-  "description": "AI destekli hotel rezervasyon asistaný"
+  "description": "AI destekli hotel rezervasyon asistanï¿½"
