@@ -30,17 +30,6 @@ var searchClient = new SearchClient(
     new AzureKeyCredential(config.SearchKey)
 );
 
-// Build Semantic Kernel
-IKernelBuilder kernelBuilder = Kernel.CreateBuilder()
-    .AddAzureOpenAIChatCompletion(
-        deploymentName: config.ChatDeploymentName,
-        endpoint: config.AzureOpenAIEndpoint,
-        apiKey: config.AzureOpenAIKey)
-    .AddAzureOpenAITextEmbeddingGeneration(
-        deploymentName: config.EmbeddingDeploymentName,
-        endpoint: config.AzureOpenAIEndpoint,
-        apiKey: config.AzureOpenAIKey);
-
 // Get embedding service early for initialization
 var embeddingService = new AzureOpenAITextEmbeddingGenerationService(
     config.EmbeddingDeploymentName,
@@ -64,8 +53,25 @@ catch (Exception ex)
 // Initialize services
 var searchService = new SearchService(searchClient, embeddingService);
 
-// Add RAG Search Plugin to kernel
+// Build Semantic Kernel
+IKernelBuilder kernelBuilder = Kernel.CreateBuilder()
+    .AddAzureOpenAIChatCompletion(
+        deploymentName: config.ChatDeploymentName,
+        endpoint: config.AzureOpenAIEndpoint,
+        apiKey: config.AzureOpenAIKey)
+    .AddAzureOpenAITextEmbeddingGeneration(
+        deploymentName: config.EmbeddingDeploymentName,
+        endpoint: config.AzureOpenAIEndpoint,
+        apiKey: config.AzureOpenAIKey);
+
+// Create service instances
+var reservationService = new ReservationService();
+var personService = new PersonService(reservationService);
+
+// Add plugins to kernel
 kernelBuilder.Plugins.AddFromObject(new HotelRagSearchPlugin(searchClient, searchService, embeddingService));
+kernelBuilder.Plugins.AddFromObject(new ReservationPlugin(reservationService));
+kernelBuilder.Plugins.AddFromObject(new PersonPlugin(personService));
 
 Kernel kernel = kernelBuilder.Build();
 
@@ -78,6 +84,8 @@ webAppBuilder.Services.AddSingleton(searchClient);
 webAppBuilder.Services.AddSingleton(kernel);
 webAppBuilder.Services.AddSingleton(chatCompletionService);
 webAppBuilder.Services.AddSingleton(searchService);
+webAppBuilder.Services.AddSingleton<IReservationService>(reservationService);
+webAppBuilder.Services.AddSingleton<IPersonService>(personService);
 
 // Session storage
 webAppBuilder.Services.AddSingleton<IChatSessionService, ChatSessionService>();
