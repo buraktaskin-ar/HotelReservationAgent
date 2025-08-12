@@ -21,7 +21,6 @@ public class ChatSessionService : IChatSessionService
 
     public ChatSessionService()
     {
-        // Her 5 dakikada bir expired session'ları temizle
         _cleanupTimer = new Timer(
             _ => CleanupExpiredSessions(),
             null,

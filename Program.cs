@@ -72,6 +72,8 @@ var personService = new PersonService(reservationService);
 kernelBuilder.Plugins.AddFromObject(new HotelRagSearchPlugin(searchClient, searchService, embeddingService));
 kernelBuilder.Plugins.AddFromObject(new ReservationPlugin(reservationService));
 kernelBuilder.Plugins.AddFromObject(new PersonPlugin(personService));
+kernelBuilder.Plugins.AddFromObject(new RoomPlugin(reservationService));
+kernelBuilder.Plugins.AddFromObject(new DateRangePlugin(reservationService)); // Yeni DateRangePlugin eklendi
 
 Kernel kernel = kernelBuilder.Build();
 

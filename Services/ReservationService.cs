@@ -1,5 +1,5 @@
 ﻿using HotelReservationAgentChatBot.Models;
-using System.Text.Json;
+using HotelReservationAgentChatBot.Data;
 
 namespace HotelReservationAgentChatBot.Services;
 
@@ -8,6 +8,10 @@ public interface IReservationService
     Task<Reservation> CreateReservationAsync(int personId, string hotelId, int roomId, DateTime checkIn, DateTime checkOut);
     Task<List<Reservation>> GetAllReservationsAsync();
     Task<bool> IsRoomAvailableAsync(int roomId, DateTime checkIn, DateTime checkOut);
+    Task<List<Room>> GetAllRoomsAsync();
+    Task<Room?> GetRoomAsync(int roomId);
+    void AddPerson(Person person);
+    Person? GetPerson(int personId);
 }
 
 public class ReservationService : IReservationService
@@ -16,14 +20,22 @@ public class ReservationService : IReservationService
     private readonly List<Room> _rooms;
     private readonly List<Hotel> _hotels;
     private readonly List<Person> _people;
-    private int _nextReservationId = 1;
+    private int _nextReservationId = 6; 
 
     public ReservationService()
     {
-        _reservations = new List<Reservation>();
-        _rooms = SeedRooms();
-        _hotels = SeedHotels();
-        _people = new List<Person>();
+        // Seed verileri yükle
+        var roomSeeder = new RoomDataSeeder();
+        var hotelSeeder = new HotelDataSeeder();
+        var personSeeder = new PersonDataSeeder();
+
+        _rooms = roomSeeder.GetRooms();
+        _hotels = hotelSeeder.GetHotels().ToList();
+        _people = personSeeder.GetPersons();
+
+        // Rezervasyonları yükle
+        var reservationSeeder = new ReservationDataSeeder();
+        _reservations = reservationSeeder.GetReservations(_people, _rooms);
     }
 
     public async Task<Reservation> CreateReservationAsync(int personId, string hotelId, int roomId, DateTime checkIn, DateTime checkOut)
@@ -68,15 +80,8 @@ public class ReservationService : IReservationService
         // Rezervasyonu kaydet
         _reservations.Add(reservation);
 
-        // Oda müsaitliğini güncelle (rezerve edildi olarak işaretle)
-        var availability = room.Availabilities.FirstOrDefault(a =>
-            a.AvailabilitySlot.Start <= checkIn && a.AvailabilitySlot.End >= checkOut);
-
-        if (availability != null)
-        {
-            availability.AvailabilitySlot.Status = AvailabilityStatus.Reserved;
-            availability.AvailabilitySlot.Note = $"Reserved for {person.FirstName} {person.LastName}";
-        }
+        // Oda müsaitliğini güncelle
+        await UpdateRoomAvailabilityAsync(roomId, checkIn, checkOut, person);
 
         return reservation;
     }
@@ -84,6 +89,17 @@ public class ReservationService : IReservationService
     public async Task<List<Reservation>> GetAllReservationsAsync()
     {
         return await Task.FromResult(_reservations.ToList());
+    }
+
+    public async Task<List<Room>> GetAllRoomsAsync()
+    {
+        return await Task.FromResult(_rooms.ToList());
+    }
+
+    public async Task<Room?> GetRoomAsync(int roomId)
+    {
+        var room = _rooms.FirstOrDefault(r => r.Id == roomId);
+        return await Task.FromResult(room);
     }
 
     public async Task<bool> IsRoomAvailableAsync(int roomId, DateTime checkIn, DateTime checkOut)
@@ -99,12 +115,12 @@ public class ReservationService : IReservationService
             return true;
         }
 
-        // Belirtilen tarih aralığında uygun slot var mı kontrol et
+        // İstenen tarih aralığını kapsayan slot'ları kontrol et
         foreach (var availability in room.Availabilities)
         {
             var slot = availability.AvailabilitySlot;
 
-            // Tarih aralığı kontrolü
+            // Tarih aralığının tamamen slot içinde olup olmadığını kontrol et
             if (slot.Start <= checkIn && slot.End >= checkOut)
             {
                 // Sadece Available durumundaki slotlar rezerve edilebilir
@@ -112,80 +128,94 @@ public class ReservationService : IReservationService
             }
         }
 
-        // Uygun slot bulunamadı
+        // Tarih aralığını kapsayan uygun slot bulunamadı
         return false;
     }
 
-    // Test verileri için örnek odalar
-    private List<Room> SeedRooms()
+    private async Task UpdateRoomAvailabilityAsync(int roomId, DateTime checkIn, DateTime checkOut, Person person)
     {
-        var rooms = new List<Room>();
+        var room = _rooms.FirstOrDefault(r => r.Id == roomId);
+        if (room == null) return;
 
-        for (int i = 1; i <= 10; i++)
+        // Mevcut Available slot'u bul
+        var availableSlot = room.Availabilities.FirstOrDefault(a =>
+            a.AvailabilitySlot.Status == AvailabilityStatus.Available &&
+            a.AvailabilitySlot.Start <= checkIn &&
+            a.AvailabilitySlot.End >= checkOut);
+
+        if (availableSlot != null)
         {
-            var room = new Room
+            var originalEnd = availableSlot.AvailabilitySlot.End;
+            var originalStart = availableSlot.AvailabilitySlot.Start;
+
+            // Mevcut slot'u güncelle veya böl
+            if (originalStart == checkIn && originalEnd == checkOut)
             {
-                Id = i,
-                RoomNumber = $"10{i}",
-                Floor = (i - 1) / 4 + 1,
-                Capacity = i % 2 == 0 ? 2 : 1,
-                IsSeaView = i % 3 == 0,
-                IsCityView = i % 4 == 0,
-                SeaViewSurcharge = 50m,
-                CityViewSurcharge = 30m,
-                BasePrice = 150m + (i * 25m),
-                Availabilities = new List<RoomAvailability>
+                // Tam eşleşme - slot'u reserved yap
+                availableSlot.AvailabilitySlot.Status = AvailabilityStatus.Reserved;
+                availableSlot.AvailabilitySlot.Note = $"Reserved for {person.FirstName} {person.LastName}";
+            }
+            else
+            {
+                // Slot'u bölmek gerekiyor
+                room.Availabilities.Remove(availableSlot);
+
+                // Önce kalan available kısımları ekle
+                if (originalStart < checkIn)
                 {
-                    new RoomAvailability
+                    room.Availabilities.Add(new RoomAvailability
                     {
-                        Id = i * 100,
+                        Id = room.Availabilities.Max(a => a.Id ?? 0) + 1,
                         AvailabilitySlot = new AvailabilitySlot
                         {
-                            Start = DateTime.Today,
-                            End = DateTime.Today.AddMonths(6),
+                            Start = originalStart,
+                            End = checkIn.AddDays(-1),
                             Status = AvailabilityStatus.Available,
-                            Note = "Standard availability"
+                            Note = null
                         }
-                    }
+                    });
                 }
-            };
 
-            rooms.Add(room);
+                if (originalEnd > checkOut)
+                {
+                    room.Availabilities.Add(new RoomAvailability
+                    {
+                        Id = room.Availabilities.Max(a => a.Id ?? 0) + 1,
+                        AvailabilitySlot = new AvailabilitySlot
+                        {
+                            Start = checkOut.AddDays(1),
+                            End = originalEnd,
+                            Status = AvailabilityStatus.Available,
+                            Note = null
+                        }
+                    });
+                }
+
+                // Sonra reserved kısmı ekle
+                room.Availabilities.Add(new RoomAvailability
+                {
+                    Id = room.Availabilities.Max(a => a.Id ?? 0) + 1,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = checkIn,
+                        End = checkOut,
+                        Status = AvailabilityStatus.Reserved,
+                        Note = $"Reserved for {person.FirstName} {person.LastName}"
+                    }
+                });
+            }
         }
 
-        return rooms;
-    }
-
-    // Test verileri için örnek oteller
-    private List<Hotel> SeedHotels()
-    {
-        return new List<Hotel>
-        {
-            new Hotel
-            {
-                HotelId = "hotel-001",
-                HotelName = "Grand Istanbul Hotel",
-                City = "Istanbul",
-                Country = "Turkey",
-                Address = "Sultanahmet, Istanbul",
-                StarRating = 5,
-                PricePerNight = 200,
-                Description = "Luxury hotel in the heart of Istanbul",
-                Amenities = "Pool, Spa, Gym, Restaurant, Bar",
-                HasPool = true,
-                HasGym = true,
-                HasSpa = true,
-                PetFriendly = false,
-                HasParking = true,
-                HasWifi = true
-            }
-        };
+        await Task.CompletedTask;
     }
 
     // PersonService için kişileri kaydetmek
     public void AddPerson(Person person)
     {
-        _people.Add(person);
+        if (_people.All(p => p.Id != person.Id))
+        {
+            _people.Add(person);
+        }
     }
 
     public Person? GetPerson(int personId)

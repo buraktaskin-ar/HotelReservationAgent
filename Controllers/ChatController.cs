@@ -1,9 +1,17 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Azure;
+using HotelReservationAgentChatBot.Models;
+using HotelReservationAgentChatBot.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.SemanticKernel;
 using Microsoft.SemanticKernel.ChatCompletion;
 using Microsoft.SemanticKernel.Connectors.OpenAI;
-using HotelReservationAgentChatBot.Services;
-using HotelReservationAgentChatBot.Models;
+using Microsoft.VisualBasic;
+using OpenAI.Assistants;
+using System.Buffers.Text;
+using System.Diagnostics.Metrics;
+using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace HotelReservationAgentChatBot.Controllers
 {
@@ -30,26 +38,62 @@ namespace HotelReservationAgentChatBot.Controllers
         {
             var session = _sessionService.CreateSession();
 
-            // System prompt that guides the LLM to use the RAG search plugin
             session.ChatHistory.AddSystemMessage(
-                @"You are a helpful hotel reservation assistant with access to a comprehensive hotel database through the search function.
-                When users ask about hotels, accommodations, or any hotel-related queries, you should use the available search functions to find relevant information.
-                Always provide accurate information based on the search results.
-                Be conversational and helpful, and if you need more details to provide better recommendations, ask the user.
-                Format your responses in a clear and friendly manner."
+                @"You are a helpful hotel reservation assistant with access to a comprehensive hotel database and reservation system.
+                
+                Available functions:
+                - Search hotels by location, price, amenities, and features
+                - Find rooms for date ranges (handles natural language like '12-16 January 2025' or '12-16 ocak 2025')
+                - View all available rooms with detailed information
+                - Check room availability for specific dates
+                - Create new customer profiles
+                - Make hotel reservations
+                - View existing reservations
+                
+                
+                
+                IMPORTANT: When users provide date ranges in natural language (like '12-16 January 2025' or '12-16 ocak 2025'), 
+                use the FindRoomsForDateRange function first. This function can:
+                - Parse Turkish and English date formats
+                - Handle date ranges like '12-16 ocak 2025'
+                - Filter by guest count (1 for single rooms, 2 for double rooms)
+                - Filter by hotel preference
+                
+                Hotel Information:
+                - Seaside Resort & Spa (Miami) has rooms including single occupancy options with sea views
+                - Grand Plaza Hotel (New York) has city view rooms in Manhattan
+                - Mountain Lodge Retreat (Aspen) offers mountain accommodations
+                
+                When users ask about hotels, rooms, reservations, or any related queries:
+                1. For date range requests, use FindRoomsForDateRange function
+                2. Use the search functions to find relevant information
+                3. Provide accurate information based on the search results
+                4. Be conversational and helpful
+                5. If you need more details to provide better recommendations, ask the user
+                6. Format your responses in a clear and friendly manner
+                7. Always check room availability before attempting to make reservations
+                
+                You can help with:
+                - Hotel searches and recommendations
+                - Room availability checks with natural language dates
+                - Creating customer profiles
+                - Making new reservations
+                - Viewing existing reservations and room information
+                
+                Be proactive in using the available functions to provide comprehensive assistance."
+               
             );
 
             return Ok(new SessionResponse
             {
                 SessionId = session.Id,
-                Message = "Merhaba! Size otel bulma konusunda yardımcı olabilirim. Hangi şehirde, ne tür özelliklere sahip bir otel arıyorsunuz?"
+                Message = "Merhaba! Size otel arama, oda rezervasyonu ve müşteri hizmetleri konularında yardımcı olabilirim. Nasıl yardımcı olabilirim?"
             });
         }
 
         [HttpPost("{sessionId}")]
         public async Task<ActionResult<ChatResponse>> Chat(string sessionId, [FromBody] ChatRequest request)
         {
-            // Get session
             var session = _sessionService.GetSession(sessionId);
             if (session == null)
             {
@@ -58,13 +102,10 @@ namespace HotelReservationAgentChatBot.Controllers
 
             try
             {
-                // Update session access time
                 _sessionService.UpdateSessionAccess(sessionId);
 
-                // Add user message to history
                 session.ChatHistory.AddUserMessage(request.Message);
 
-                // Configure execution settings to enable auto function calling
                 var executionSettings = new OpenAIPromptExecutionSettings
                 {
                     FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
@@ -72,7 +113,6 @@ namespace HotelReservationAgentChatBot.Controllers
                     MaxTokens = 1000
                 };
 
-                // Get response from LLM with function calling
                 var response = await _chatService.GetChatMessageContentsAsync(
                     session.ChatHistory,
                     executionSettings,
@@ -81,7 +121,6 @@ namespace HotelReservationAgentChatBot.Controllers
 
                 var responseContent = response.FirstOrDefault()?.Content ?? "Üzgünüm, isteğinizi işleyemedim.";
 
-                // Add assistant response to history
                 session.ChatHistory.AddAssistantMessage(responseContent);
 
                 return Ok(new ChatResponse
@@ -136,7 +175,7 @@ namespace HotelReservationAgentChatBot.Controllers
         }
     }
 
-    // Request/Response Models
+    
     public class ChatRequest
     {
         public string Message { get; set; } = string.Empty;

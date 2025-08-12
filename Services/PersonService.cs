@@ -1,4 +1,5 @@
 ﻿using HotelReservationAgentChatBot.Models;
+using HotelReservationAgentChatBot.Data;
 
 namespace HotelReservationAgentChatBot.Services;
 
@@ -13,12 +14,24 @@ public class PersonService : IPersonService
 {
     private readonly List<Person> _people;
     private readonly IReservationService _reservationService;
-    private int _nextPersonId = 1;
+    private int _nextPersonId = 13; // Başlangıç ID'si (12 seed person var)
 
     public PersonService(IReservationService reservationService)
     {
-        _people = new List<Person>();
         _reservationService = reservationService;
+
+        // Seed verileri yükle
+        var personSeeder = new PersonDataSeeder();
+        _people = personSeeder.GetPersons();
+
+        // ReservationService'e seed person'ları ekle
+        if (_reservationService is ReservationService reservationServiceImpl)
+        {
+            foreach (var person in _people)
+            {
+                reservationServiceImpl.AddPerson(person);
+            }
+        }
     }
 
     public async Task<Person> CreatePersonAsync(string firstName, string lastName, string? email = null, string? phone = null)

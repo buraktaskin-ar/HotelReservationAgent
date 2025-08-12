@@ -4,137 +4,374 @@ namespace HotelReservationAgentChatBot.Data;
 
 public class RoomDataSeeder
 {
-    private static readonly Random _random = new Random();
-
     public List<Room> GetRooms()
     {
         var hotelSeeder = new HotelDataSeeder();
         var hotels = hotelSeeder.GetHotels().ToList();
         var rooms = new List<Room>();
-        int roomId = 1;
 
-        foreach (var hotel in hotels)
-        {
-            // Grand Plaza Hotel (Hotel ID: 1) - 30 rooms
-            if (hotel.HotelId == "1")
-            {
-                rooms.AddRange(CreateRoomsForHotel(hotel, 30, ref roomId, hasSeaView: false, hasCityView: true));
-            }
-            // Seaside Resort (Hotel ID: 2) - 40 rooms  
-            else if (hotel.HotelId == "2")
-            {
-                rooms.AddRange(CreateRoomsForHotel(hotel, 40, ref roomId, hasSeaView: true, hasCityView: false));
-            }
-            // Other hotels - 25 rooms each
-            else
-            {
-                rooms.AddRange(CreateRoomsForHotel(hotel, 25, ref roomId, hasSeaView: false, hasCityView: false));
-            }
-        }
+        // Hotel 1 için 3 oda
+        var hotel1 = hotels.First(h => h.HotelId == "1");
+        rooms.AddRange(CreateRoomsForHotel1(hotel1));
+
+        // Hotel 2 için 2 oda
+        var hotel2 = hotels.First(h => h.HotelId == "2");
+        rooms.AddRange(CreateRoomsForHotel2(hotel2));
+
+        // Hotel 3 için 2 oda
+        var hotel3 = hotels.First(h => h.HotelId == "3");
+        rooms.AddRange(CreateRoomsForHotel3(hotel3));
 
         return rooms;
     }
 
-    private List<Room> CreateRoomsForHotel(Hotel hotel, int roomCount, ref int roomId, bool hasSeaView, bool hasCityView)
+    private List<Room> CreateRoomsForHotel1(Hotel hotel)
     {
-        var rooms = new List<Room>();
-        var roomTypes = new[] { RoomType.StandardSingle, RoomType.StandardDouble, RoomType.DeluxeSingle, RoomType.DeluxeDouble };
-
-        for (int i = 1; i <= roomCount; i++)
+        return new List<Room>
         {
-            var floor = (i - 1) / 10 + 1;
-            var roomNumber = $"{floor}{(i % 10 == 0 ? 10 : i % 10).ToString("00")}";
-            var roomType = roomTypes[_random.Next(roomTypes.Length)];
-
-            // Sea view probability for seaside hotels
-            var isSeaView = hasSeaView && _random.NextDouble() < 0.6; // 60% chance for seaside hotels
-
-            // City view probability for city hotels
-            var isCityView = hasCityView && _random.NextDouble() < 0.7; // 70% chance for city hotels
-
-            var room = new Room
+            new Room
             {
-                Id = roomId++,
-                RoomNumber = roomNumber,
-                Floor = floor,
+                Id = 1,
+                RoomNumber = "101",
+                Floor = 1,
                 Hotel = hotel,
-                Capacity = RoomPricing.Capacities[roomType],
-                IsSeaView = isSeaView,
-                IsCityView = isCityView,
+                Capacity = 2,
+                IsSeaView = false,
+                IsCityView = true,
                 SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
                 CityViewSurcharge = RoomPricing.CityViewSurcharge,
-                BasePrice = RoomPricing.BasePrices[roomType],
-                Availabilities = GenerateRoomAvailabilities(roomId - 1)
-            };
-
-            rooms.Add(room);
-        }
-
-        return rooms;
+                BasePrice = RoomPricing.BasePrices[RoomType.StandardDouble],
+                Availabilities = GenerateRoomAvailabilities(1, DateTime.Today, DateTime.Today.AddMonths(6))
+            },
+            new Room
+            {
+                Id = 2,
+                RoomNumber = "301",
+                Floor = 3,
+                Hotel = hotel,
+                Capacity = 1,
+                IsSeaView = false,
+                IsCityView = true,
+                SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
+                CityViewSurcharge = RoomPricing.CityViewSurcharge,
+                BasePrice = RoomPricing.BasePrices[RoomType.DeluxeSingle],
+                Availabilities = GenerateRoomAvailabilities(2, DateTime.Today, DateTime.Today.AddMonths(6))
+            },
+            new Room
+            {
+                Id = 3,
+                RoomNumber = "505",
+                Floor = 5,
+                Hotel = hotel,
+                Capacity = 2,
+                IsSeaView = false,
+                IsCityView = true,
+                SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
+                CityViewSurcharge = RoomPricing.CityViewSurcharge,
+                BasePrice = RoomPricing.BasePrices[RoomType.DeluxeDouble],
+                Availabilities = GenerateRoomAvailabilities(3, DateTime.Today, DateTime.Today.AddMonths(6))
+            }
+        };
     }
 
-    private List<RoomAvailability> GenerateRoomAvailabilities(int roomId)
+    private List<Room> CreateRoomsForHotel2(Hotel hotel)
+    {
+        return new List<Room>
+        {
+            new Room
+            {
+                Id = 4,
+                RoomNumber = "205",
+                Floor = 2,
+                Hotel = hotel,
+                Capacity = 2,
+                IsSeaView = true,
+                IsCityView = false,
+                SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
+                CityViewSurcharge = RoomPricing.CityViewSurcharge,
+                BasePrice = RoomPricing.BasePrices[RoomType.StandardDouble],
+                Availabilities = GenerateRoomAvailabilities(4, DateTime.Today, DateTime.Today.AddMonths(6))
+            },
+            new Room
+            {
+                Id = 5,
+                RoomNumber = "410",
+                Floor = 4,
+                Hotel = hotel,
+                Capacity = 2,
+                IsSeaView = true,
+                IsCityView = false,
+                SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
+                CityViewSurcharge = RoomPricing.CityViewSurcharge,
+                BasePrice = RoomPricing.BasePrices[RoomType.DeluxeDouble],
+                Availabilities = GenerateRoomAvailabilities(5, DateTime.Today, DateTime.Today.AddMonths(6))
+            },
+            new Room
+            {
+                Id = 8,
+                RoomNumber = "301",
+                Floor = 3,
+                Hotel = hotel,
+                Capacity = 1,
+                IsSeaView = true,
+                IsCityView = false,
+                SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
+                CityViewSurcharge = RoomPricing.CityViewSurcharge,
+                BasePrice = RoomPricing.BasePrices[RoomType.StandardSingle],
+                Availabilities = GenerateRoomAvailabilities(8, DateTime.Today, DateTime.Today.AddMonths(6))
+            }
+        };
+    }
+
+    private List<Room> CreateRoomsForHotel3(Hotel hotel)
+    {
+        return new List<Room>
+        {
+            new Room
+            {
+                Id = 6,
+                RoomNumber = "102",
+                Floor = 1,
+                Hotel = hotel,
+                Capacity = 1,
+                IsSeaView = false,
+                IsCityView = false,
+                SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
+                CityViewSurcharge = RoomPricing.CityViewSurcharge,
+                BasePrice = RoomPricing.BasePrices[RoomType.StandardSingle],
+                Availabilities = GenerateRoomAvailabilities(6, DateTime.Today, DateTime.Today.AddMonths(6))
+            },
+            new Room
+            {
+                Id = 7,
+                RoomNumber = "304",
+                Floor = 3,
+                Hotel = hotel,
+                Capacity = 2,
+                IsSeaView = false,
+                IsCityView = false,
+                SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
+                CityViewSurcharge = RoomPricing.CityViewSurcharge,
+                BasePrice = RoomPricing.BasePrices[RoomType.StandardDouble],
+                Availabilities = GenerateRoomAvailabilities(7, DateTime.Today, DateTime.Today.AddMonths(6))
+            }
+        };
+    }
+
+    private List<RoomAvailability> GenerateRoomAvailabilities(int roomId, DateTime startDate, DateTime endDate)
     {
         var availabilities = new List<RoomAvailability>();
-        var startDate = DateTime.Today;
-        int availabilityId = roomId * 1000;
 
-        // Generate availability for next 6 months
-        for (int month = 0; month < 6; month++)
+        switch (roomId)
         {
-            var monthStart = startDate.AddMonths(month);
-            var monthEnd = monthStart.AddMonths(1).AddDays(-1);
-
-            var currentDate = monthStart;
-            while (currentDate <= monthEnd)
-            {
-                var status = GenerateRandomAvailabilityStatus();
-                var slotDuration = _random.Next(1, 8); // 1-7 days
-                var slotEnd = currentDate.AddDays(slotDuration);
-
-                if (slotEnd > monthEnd)
-                    slotEnd = monthEnd;
-
+            case 1: // Room 101 - Gelecekte rezerve edilmiş
                 availabilities.Add(new RoomAvailability
                 {
-                    Id = availabilityId++,
-                    Room = null, // Will be set when room is assigned
+                    Id = roomId * 100 + 1,
                     AvailabilitySlot = new AvailabilitySlot
                     {
-                        Start = currentDate,
-                        End = slotEnd,
-                        Status = status,
-                        Note = GetAvailabilityNote(status)
+                        Start = startDate,
+                        End = startDate.AddDays(6), // İlk 7 gün müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
                     }
                 });
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 2,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate.AddDays(7),
+                        End = startDate.AddDays(9), // 7-10 arası rezerve
+                        Status = AvailabilityStatus.Reserved,
+                        Note = "Ahmet Yılmaz rezervasyonu"
+                    }
+                });
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 3,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate.AddDays(10),
+                        End = endDate, // Geri kalan dönem müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                break;
 
-                currentDate = slotEnd.AddDays(1);
-            }
+            case 2: // Room 301 - Gelecekte rezerve edilmiş
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 1,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate,
+                        End = startDate.AddDays(2), // İlk 3 gün müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 2,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate.AddDays(3),
+                        End = startDate.AddDays(6), // 3-7 arası rezerve
+                        Status = AvailabilityStatus.Reserved,
+                        Note = "Emily Johnson rezervasyonu"
+                    }
+                });
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 3,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate.AddDays(7),
+                        End = endDate, // Geri kalan dönem müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                break;
+
+            case 4: // Room 205 - Gelecekte rezerve edilmiş
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 1,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate,
+                        End = startDate.AddDays(14), // İlk 15 gün müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 2,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate.AddDays(15),
+                        End = startDate.AddDays(17), // 15-18 arası rezerve
+                        Status = AvailabilityStatus.Reserved,
+                        Note = "Fatma Kaya rezervasyonu"
+                    }
+                });
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 3,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate.AddDays(18),
+                        End = endDate, // Geri kalan dönem müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                break;
+
+            case 5: // Room 410 - Gelecekte rezerve edilmiş
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 1,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate,
+                        End = startDate.AddDays(19), // İlk 20 gün müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 2,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate.AddDays(20),
+                        End = startDate.AddDays(24), // 20-25 arası rezerve
+                        Status = AvailabilityStatus.Reserved,
+                        Note = "Mehmet Demir rezervasyonu"
+                    }
+                });
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 3,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate.AddDays(25),
+                        End = endDate, // Geri kalan dönem müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                break;
+
+            case 6: // Room 102 - Gelecekte rezerve edilmiş
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 1,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate,
+                        End = startDate.AddDays(11), // İlk 12 gün müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 2,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate.AddDays(12),
+                        End = startDate.AddDays(15), // 12-16 arası rezerve
+                        Status = AvailabilityStatus.Reserved,
+                        Note = "Can Şen rezervasyonu"
+                    }
+                });
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 3,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate.AddDays(16),
+                        End = endDate, // Geri kalan dönem müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                break;
+
+            case 8: // Room 301 (Seaside Resort) - 1 kişilik oda, genellikle müsait
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 1,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate,
+                        End = endDate, // Tüm dönem müsait
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                break;
+            default: // Diğer odalar tamamen müsait
+                availabilities.Add(new RoomAvailability
+                {
+                    Id = roomId * 100 + 1,
+                    AvailabilitySlot = new AvailabilitySlot
+                    {
+                        Start = startDate,
+                        End = endDate,
+                        Status = AvailabilityStatus.Available,
+                        Note = null
+                    }
+                });
+                break;
         }
 
         return availabilities;
-    }
-
-    private AvailabilityStatus GenerateRandomAvailabilityStatus()
-    {
-        var rand = _random.NextDouble();
-        return rand switch
-        {
-            < 0.75 => AvailabilityStatus.Available,   // 75% available
-            < 0.88 => AvailabilityStatus.Reserved,    // 13% reserved
-            < 0.96 => AvailabilityStatus.Blocked,     // 8% blocked
-            _ => AvailabilityStatus.OutOfService      // 4% out of service
-        };
-    }
-
-    private string GetAvailabilityNote(AvailabilityStatus status)
-    {
-        return status switch
-        {
-            AvailabilityStatus.Reserved => "Mevcut rezervasyon",
-            AvailabilityStatus.Blocked => "Bakım çalışması",
-            AvailabilityStatus.OutOfService => "Renovasyon",
-            _ => null
-        };
     }
 }

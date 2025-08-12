@@ -4,123 +4,68 @@ namespace HotelReservationAgentChatBot.Data;
 
 public class ReservationDataSeeder
 {
-    private static readonly Random _random = new Random();
-
     public List<Reservation> GetReservations(List<Person> persons, List<Room> rooms)
     {
         var reservations = new List<Reservation>();
 
-        // Create some sample reservations
+        // Rezervasyon 1: Ahmet Yılmaz - Grand Plaza Hotel Room 101
         reservations.Add(new Reservation
         {
             Id = 1,
             Person = persons.First(p => p.Id == 1), // Ahmet Yılmaz
-            Hotel = rooms.First(r => r.Hotel.HotelId == "1").Hotel, // Grand Plaza Hotel
-            Room = rooms.First(r => r.Hotel.HotelId == "1" && r.RoomNumber == "101"),
+            Hotel = rooms.First(r => r.Id == 1).Hotel, // Grand Plaza Hotel
+            Room = rooms.First(r => r.Id == 1), // Room 101
             CheckIn = DateTime.Today.AddDays(7),
             CheckOut = DateTime.Today.AddDays(10),
-            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Hotel.HotelId == "1" && r.RoomNumber == "101"), 3)
+            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Id == 1), 3)
         });
 
+        // Rezervasyon 2: Emily Johnson - Grand Plaza Hotel Room 301
         reservations.Add(new Reservation
         {
             Id = 2,
-            Person = persons.First(p => p.Id == 2), // Fatma Kaya
-            Hotel = rooms.First(r => r.Hotel.HotelId == "2").Hotel, // Seaside Resort
-            Room = rooms.First(r => r.Hotel.HotelId == "2" && r.RoomNumber == "205"),
-            CheckIn = DateTime.Today.AddDays(15),
-            CheckOut = DateTime.Today.AddDays(18),
-            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Hotel.HotelId == "2" && r.RoomNumber == "205"), 3)
+            Person = persons.First(p => p.Id == 6), // Emily Johnson
+            Hotel = rooms.First(r => r.Id == 2).Hotel, // Grand Plaza Hotel
+            Room = rooms.First(r => r.Id == 2), // Room 301
+            CheckIn = DateTime.Today.AddDays(3),
+            CheckOut = DateTime.Today.AddDays(7),
+            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Id == 2), 4)
         });
 
+        // Rezervasyon 3: Fatma Kaya - Seaside Resort Room 205
         reservations.Add(new Reservation
         {
             Id = 3,
-            Person = persons.First(p => p.Id == 6), // Emily Johnson
-            Hotel = rooms.First(r => r.Hotel.HotelId == "1").Hotel, // Grand Plaza Hotel
-            Room = rooms.First(r => r.Hotel.HotelId == "1" && r.RoomNumber == "301"),
-            CheckIn = DateTime.Today.AddDays(3),
-            CheckOut = DateTime.Today.AddDays(7),
-            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Hotel.HotelId == "1" && r.RoomNumber == "301"), 4)
+            Person = persons.First(p => p.Id == 2), // Fatma Kaya
+            Hotel = rooms.First(r => r.Id == 4).Hotel, // Seaside Resort
+            Room = rooms.First(r => r.Id == 4), // Room 205
+            CheckIn = DateTime.Today.AddDays(15),
+            CheckOut = DateTime.Today.AddDays(18),
+            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Id == 4), 3)
         });
 
+        // Rezervasyon 4: Mehmet Demir - Seaside Resort Room 410
         reservations.Add(new Reservation
         {
             Id = 4,
             Person = persons.First(p => p.Id == 3), // Mehmet Demir
-            Hotel = rooms.First(r => r.Hotel.HotelId == "2").Hotel, // Seaside Resort
-            Room = rooms.First(r => r.Hotel.HotelId == "2" && r.RoomNumber == "410"),
+            Hotel = rooms.First(r => r.Id == 5).Hotel, // Seaside Resort
+            Room = rooms.First(r => r.Id == 5), // Room 410
             CheckIn = DateTime.Today.AddDays(20),
             CheckOut = DateTime.Today.AddDays(25),
-            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Hotel.HotelId == "2" && r.RoomNumber == "410"), 5)
+            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Id == 5), 5)
         });
 
+        // Rezervasyon 5: Can Şen - Mountain Lodge Room 102
         reservations.Add(new Reservation
         {
             Id = 5,
             Person = persons.First(p => p.Id == 5), // Can Şen
-            Hotel = rooms.First(r => r.Hotel.HotelId == "3").Hotel,
-            Room = rooms.First(r => r.Hotel.HotelId == "3" && r.RoomNumber == "102"),
+            Hotel = rooms.First(r => r.Id == 6).Hotel, // Mountain Lodge
+            Room = rooms.First(r => r.Id == 6), // Room 102
             CheckIn = DateTime.Today.AddDays(12),
             CheckOut = DateTime.Today.AddDays(16),
-            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Hotel.HotelId == "3" && r.RoomNumber == "102"), 4)
-        });
-
-        reservations.Add(new Reservation
-        {
-            Id = 6,
-            Person = persons.First(p => p.Id == 7), // Marco Rossi
-            Hotel = rooms.First(r => r.Hotel.HotelId == "1").Hotel, // Grand Plaza Hotel
-            Room = rooms.First(r => r.Hotel.HotelId == "1" && r.RoomNumber == "505"),
-            CheckIn = DateTime.Today.AddDays(30),
-            CheckOut = DateTime.Today.AddDays(35),
-            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Hotel.HotelId == "1" && r.RoomNumber == "505"), 5)
-        });
-
-        // Add some past reservations
-        reservations.Add(new Reservation
-        {
-            Id = 7,
-            Person = persons.First(p => p.Id == 8), // Sophie Mueller
-            Hotel = rooms.First(r => r.Hotel.HotelId == "2").Hotel, // Seaside Resort
-            Room = rooms.First(r => r.Hotel.HotelId == "2" && r.RoomNumber == "315"),
-            CheckIn = DateTime.Today.AddDays(-10),
-            CheckOut = DateTime.Today.AddDays(-7),
-            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Hotel.HotelId == "2" && r.RoomNumber == "315"), 3)
-        });
-
-        reservations.Add(new Reservation
-        {
-            Id = 8,
-            Person = persons.First(p => p.Id == 4), // Ayşe Öz
-            Hotel = rooms.First(r => r.Hotel.HotelId == "4").Hotel,
-            Room = rooms.First(r => r.Hotel.HotelId == "4" && r.RoomNumber == "201"),
-            CheckIn = DateTime.Today.AddDays(-5),
-            CheckOut = DateTime.Today.AddDays(-2),
-            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Hotel.HotelId == "4" && r.RoomNumber == "201"), 3)
-        });
-
-        // Add current active reservation
-        reservations.Add(new Reservation
-        {
-            Id = 9,
-            Person = persons.First(p => p.Id == 9), // Ali Çelik
-            Hotel = rooms.First(r => r.Hotel.HotelId == "1").Hotel, // Grand Plaza Hotel
-            Room = rooms.First(r => r.Hotel.HotelId == "1" && r.RoomNumber == "420"),
-            CheckIn = DateTime.Today.AddDays(-1),
-            CheckOut = DateTime.Today.AddDays(3),
-            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Hotel.HotelId == "1" && r.RoomNumber == "420"), 4)
-        });
-
-        reservations.Add(new Reservation
-        {
-            Id = 10,
-            Person = persons.First(p => p.Id == 10), // Zeynep Aydın
-            Hotel = rooms.First(r => r.Hotel.HotelId == "2").Hotel, // Seaside Resort
-            Room = rooms.First(r => r.Hotel.HotelId == "2" && r.RoomNumber == "108"),
-            CheckIn = DateTime.Today.AddDays(45),
-            CheckOut = DateTime.Today.AddDays(52),
-            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Hotel.HotelId == "2" && r.RoomNumber == "108"), 7)
+            TotalPrice = CalculateTotalPrice(rooms.First(r => r.Id == 6), 4)
         });
 
         return reservations;
