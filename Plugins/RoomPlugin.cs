@@ -15,6 +15,89 @@ public class RoomPlugin
         _reservationService = reservationService;
     }
 
+    [KernelFunction, Description("Get rooms for a specific hotel by hotel name or hotel ID")]
+    public async Task<string> GetRoomsByHotel(
+        [Description("Hotel name or hotel ID to search for rooms")] string hotelIdentifier)
+    {
+        try
+        {
+            var allRooms = await _reservationService.GetAllRoomsAsync();
+
+            // Hotel name veya ID'ye göre filtrele
+            var hotelRooms = allRooms.Where(r =>
+                r.Hotel.HotelName.ToLower().Contains(hotelIdentifier.ToLower()) ||
+                r.Hotel.HotelId.Equals(hotelIdentifier, StringComparison.OrdinalIgnoreCase) ||
+                r.Hotel.City.ToLower().Contains(hotelIdentifier.ToLower())
+            ).ToList();
+
+            if (!hotelRooms.Any())
+            {
+                return JsonSerializer.Serialize(new
+                {
+                    success = false,
+                    message = $"'{hotelIdentifier}' oteli için sistemde kayıtlı oda bulunamadı.",
+                    searchedFor = hotelIdentifier,
+                    totalRoomsFound = 0,
+                    rooms = new List<object>()
+                }, JsonOptions);
+            }
+
+            // Otelin adını bul (ilk odadan)
+            var hotelName = hotelRooms.First().Hotel.HotelName;
+            var hotelCity = hotelRooms.First().Hotel.City;
+
+            var roomsList = hotelRooms.Select(r => new
+            {
+                roomId = r.Id,
+                roomNumber = r.RoomNumber,
+                floor = r.Floor,
+                capacity = r.Capacity,
+                features = new
+                {
+                    isSeaView = r.IsSeaView,
+                    isCityView = r.IsCityView
+                },
+                pricing = new
+                {
+                    basePrice = r.BasePrice,
+                    seaViewSurcharge = r.SeaViewSurcharge,
+                    cityViewSurcharge = r.CityViewSurcharge,
+                    totalPricePerNight = r.TotalPrice
+                },
+                currentAvailability = r.Availabilities.Select(a => new
+                {
+                    startDate = a.AvailabilitySlot.Start.ToString("yyyy-MM-dd"),
+                    endDate = a.AvailabilitySlot.End.ToString("yyyy-MM-dd"),
+                    status = a.AvailabilitySlot.Status.ToString(),
+                    note = a.AvailabilitySlot.Note
+                }).ToList()
+            }).ToList();
+
+            return JsonSerializer.Serialize(new
+            {
+                success = true,
+                message = $"{hotelName} ({hotelCity}) otelindeki tüm odalar:",
+                hotel = new
+                {
+                    name = hotelName,
+                    city = hotelCity,
+                    id = hotelRooms.First().Hotel.HotelId
+                },
+                totalRoomsFound = hotelRooms.Count,
+                rooms = roomsList
+            }, JsonOptions);
+        }
+        catch (Exception ex)
+        {
+            return JsonSerializer.Serialize(new
+            {
+                success = false,
+                error = "Oteldeki odalar aranırken bir hata oluştu.",
+                details = ex.Message
+            }, JsonOptions);
+        }
+    }
+
     [KernelFunction, Description("Get all available rooms in the system with their details and availability status")]
     public async Task<string> GetAllRooms()
     {
@@ -158,7 +241,6 @@ public class RoomPlugin
         }
     }
 
-    
     [KernelFunction, Description("Check if a specific room is available for given dates")]
     public async Task<string> CheckRoomAvailability(
         [Description("The ID of the room to check availability for")] int roomId,
