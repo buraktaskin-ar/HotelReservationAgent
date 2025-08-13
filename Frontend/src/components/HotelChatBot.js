@@ -12,24 +12,21 @@ import {
     Heart,
     Dog,
     RefreshCw,
-    AlertCircle
+    AlertCircle,
+    Plus,
+    X
 } from 'lucide-react';
 
 const HotelChatBot = () => {
-    const [messages, setMessages] = useState([]);
+    const [chats, setChats] = useState([]);
+    const [activeChat, setActiveChat] = useState(null);
     const [input, setInput] = useState('');
-    const [sessionId, setSessionId] = useState('');
     const [isLoading, setIsLoading] = useState(false);
-    const [isConnected, setIsConnected] = useState(false);
     const [error, setError] = useState('');
     const messagesEndRef = useRef(null);
 
-    // API base URL - Kendi backend URL'nizi buraya yazın
+    // API base URL
     const API_BASE_URL = 'https://localhost:7154/api/chat';
-
-    // Alternative URLs for different environments
-    // const API_BASE_URL = 'http://localhost:5000/api/chat'; // HTTP version
-    // const API_BASE_URL = 'https://your-production-url.com/api/chat'; // Production
 
     const scrollToBottom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -37,13 +34,19 @@ const HotelChatBot = () => {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [activeChat?.messages]);
 
     useEffect(() => {
-        startNewSession();
+        createNewChat();
     }, []);
 
-    const startNewSession = async () => {
+    const generateChatId = () => {
+        return 'chat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    };
+
+    const createNewChat = async () => {
+        const newChatId = generateChatId();
+
         try {
             setIsLoading(true);
             setError('');
@@ -60,49 +63,107 @@ const HotelChatBot = () => {
             }
 
             const data = await response.json();
-            setSessionId(data.sessionId);
-            setMessages([{
-                role: 'assistant',
-                content: data.message,
-                timestamp: new Date()
-            }]);
-            setIsConnected(true);
+
+            const newChat = {
+                id: newChatId,
+                sessionId: data.sessionId,
+                title: `Sohbet ${chats.length + 1}`,
+                createdAt: new Date(),
+                messages: [{
+                    role: 'assistant',
+                    content: data.message,
+                    timestamp: new Date()
+                }],
+                isConnected: true
+            };
+
+            const updatedChats = [newChat, ...chats];
+            setChats(updatedChats);
+            setActiveChat(newChat);
+
         } catch (error) {
             console.error('Error starting session:', error);
             setError('API sunucusuna bağlanılamıyor');
-            setMessages([{
-                role: 'system',
-                content: `Bağlantı hatası: API sunucusuna ulaşılamıyor. 
-        
-Lütfen kontrol edin:
-• Backend sunucusunun çalıştığından emin olun (${API_BASE_URL})
-• CORS ayarlarının doğru olduğundan emin olun
-• SSL sertifikası sorunları için tarayıcı ayarlarını kontrol edin`,
-                timestamp: new Date()
-            }]);
-            setIsConnected(false);
+
+            const newChat = {
+                id: newChatId,
+                sessionId: null,
+                title: `Sohbet ${chats.length + 1}`,
+                createdAt: new Date(),
+                messages: [{
+                    role: 'system',
+                    content: `Bağlantı hatası: API sunucusuna ulaşılamıyor.`,
+                    timestamp: new Date()
+                }],
+                isConnected: false
+            };
+
+            const updatedChats = [newChat, ...chats];
+            setChats(updatedChats);
+            setActiveChat(newChat);
+
         } finally {
             setIsLoading(false);
         }
     };
 
+    const deleteChat = (chatId, event) => {
+        event.stopPropagation();
+        const updatedChats = chats.filter(chat => chat.id !== chatId);
+        setChats(updatedChats);
+
+        if (activeChat?.id === chatId) {
+            if (updatedChats.length > 0) {
+                setActiveChat(updatedChats[0]);
+            } else {
+                createNewChat();
+            }
+        }
+    };
+
     const sendMessage = async () => {
-        if (!input.trim() || isLoading || !sessionId) return;
+        if (!input.trim() || isLoading || !activeChat?.sessionId) return;
 
         const userMessage = {
             role: 'user',
             content: input,
             timestamp: new Date()
         };
-        setMessages(prev => [...prev, userMessage]);
+
+        // Update active chat messages
+        const updatedActiveChat = {
+            ...activeChat,
+            messages: [...activeChat.messages, userMessage]
+        };
+        setActiveChat(updatedActiveChat);
+
+        // Update chats array
+        const updatedChats = chats.map(chat =>
+            chat.id === activeChat.id ? updatedActiveChat : chat
+        );
+        setChats(updatedChats);
 
         const currentInput = input;
         setInput('');
         setIsLoading(true);
         setError('');
 
+        // Auto-update title if it's the first user message
+        if (activeChat.messages.length === 1 && activeChat.title.startsWith('Sohbet')) {
+            const shortTitle = currentInput.length > 20 ?
+                currentInput.substring(0, 20) + '...' : currentInput;
+
+            const titleUpdatedChat = { ...updatedActiveChat, title: shortTitle };
+            setActiveChat(titleUpdatedChat);
+
+            const titleUpdatedChats = chats.map(chat =>
+                chat.id === activeChat.id ? titleUpdatedChat : chat
+            );
+            setChats(titleUpdatedChats);
+        }
+
         try {
-            const response = await fetch(`${API_BASE_URL}/${sessionId}`, {
+            const response = await fetch(`${API_BASE_URL}/${activeChat.sessionId}`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -117,21 +178,48 @@ Lütfen kontrol edin:
 
             const data = await response.json();
 
-            setMessages(prev => [...prev, {
+            const assistantMessage = {
                 role: 'assistant',
                 content: data.message,
                 timestamp: new Date()
-            }]);
+            };
+
+            // Update messages with assistant response
+            const finalActiveChat = {
+                ...activeChat,
+                messages: [...updatedActiveChat.messages, assistantMessage],
+                title: activeChat.messages.length === 1 && activeChat.title.startsWith('Sohbet')
+                    ? (currentInput.length > 20 ? currentInput.substring(0, 20) + '...' : currentInput)
+                    : activeChat.title
+            };
+            setActiveChat(finalActiveChat);
+
+            const finalChats = chats.map(chat =>
+                chat.id === activeChat.id ? finalActiveChat : chat
+            );
+            setChats(finalChats);
+
         } catch (error) {
             console.error('Error sending message:', error);
             setError('Mesaj gönderilemedi');
-            setMessages(prev => [...prev, {
+
+            const errorMessage = {
                 role: 'system',
-                content: `Mesaj gönderilemedi: ${error.message}
-        
-Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
+                content: `Mesaj gönderilemedi: ${error.message}`,
                 timestamp: new Date()
-            }]);
+            };
+
+            const errorActiveChat = {
+                ...updatedActiveChat,
+                messages: [...updatedActiveChat.messages, errorMessage]
+            };
+            setActiveChat(errorActiveChat);
+
+            const errorChats = chats.map(chat =>
+                chat.id === activeChat.id ? errorActiveChat : chat
+            );
+            setChats(errorChats);
+
         } finally {
             setIsLoading(false);
         }
@@ -147,7 +235,7 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
     const formatMessage = (content) => {
         return content.split('\n').map((line, index) => (
             <div key={index} className="mb-1">
-                {line || '\u00A0'} {/* Non-breaking space for empty lines */}
+                {line || '\u00A0'}
             </div>
         ));
     };
@@ -156,13 +244,13 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
         switch (role) {
             case 'assistant':
                 return (
-                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center">
+                    <div className="w-8 h-8 bg-sky-600 rounded-full flex items-center justify-center">
                         <MessageCircle className="w-4 h-4 text-white" />
                     </div>
                 );
             case 'user':
                 return (
-                    <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                    <div className="w-8 h-8 bg-sky-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
                         U
                     </div>
                 );
@@ -182,7 +270,7 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
     };
 
     const handleSampleQuery = (query) => {
-        if (!isLoading && isConnected) {
+        if (!isLoading && activeChat?.isConnected) {
             setInput(query);
         }
     };
@@ -196,14 +284,26 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
         "Pamukkale yakınında otel öner"
     ];
 
+    const formatChatTime = (date) => {
+        if (!date) return '';
+        const now = new Date();
+        const diff = now - date;
+        const minutes = Math.floor(diff / 60000);
+
+        if (minutes < 1) return 'Şimdi';
+        if (minutes < 60) return `${minutes}dk önce`;
+        if (minutes < 1440) return `${Math.floor(minutes / 60)}sa önce`;
+        return date.toLocaleDateString('tr-TR');
+    };
+
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+        <div className="min-h-screen bg-gradient-to-br from-sky-50 via-blue-50 to-cyan-50">
             {/* Header */}
-            <div className="bg-white shadow-lg border-b border-gray-200">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 py-4">
+            <div className="bg-white shadow-lg border-b border-sky-200">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-4">
-                            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl p-3">
+                            <div className="bg-gradient-to-r from-sky-600 to-cyan-600 rounded-xl p-3">
                                 <MessageCircle className="w-6 h-6 text-white" />
                             </div>
                             <div>
@@ -216,36 +316,91 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
                             </div>
                         </div>
                         <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-2">
-                                <div className={`w-3 h-3 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'
-                                    }`}></div>
-                                <span className="text-sm text-gray-600 hidden sm:inline">
-                                    {isConnected ? 'Bağlı' : 'Bağlantı yok'}
-                                </span>
-                            </div>
-                            {error && (
-                                <button
-                                    onClick={startNewSession}
-                                    className="flex items-center space-x-1 text-blue-600 hover:text-blue-700 text-sm"
-                                >
-                                    <RefreshCw className="w-4 h-4" />
-                                    <span className="hidden sm:inline">Yeniden Bağlan</span>
-                                </button>
-                            )}
+                            <button
+                                onClick={createNewChat}
+                                className="flex items-center space-x-2 bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 rounded-lg transition-colors duration-200"
+                            >
+                                <Plus className="w-4 h-4" />
+                                <span>Yeni Sohbet</span>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
-                <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                    {/* Chat History Sidebar */}
+                    <div className="lg:col-span-1">
+                        <div className="bg-white rounded-xl shadow-lg border border-sky-200 overflow-hidden">
+                            <div className="p-4 border-b border-sky-100 bg-sky-50">
+                                <h3 className="font-semibold text-gray-800 flex items-center">
+                                    <MessageCircle className="w-4 h-4 mr-2 text-sky-600" />
+                                    Sohbetler
+                                </h3>
+                            </div>
+                            <div className="max-h-[600px] overflow-y-auto">
+                                {chats.map((chat) => (
+                                    <div
+                                        key={chat.id}
+                                        className={`p-3 border-b border-sky-50 cursor-pointer hover:bg-sky-50 transition-colors group relative ${activeChat?.id === chat.id ? 'bg-sky-100 border-l-4 border-l-sky-500' : ''
+                                            }`}
+                                        onClick={() => setActiveChat(chat)}
+                                    >
+                                        <div className="pr-8">
+                                            <div className="text-sm font-medium text-gray-900 truncate mb-1">
+                                                {chat.title}
+                                            </div>
+                                            <div className="text-xs text-gray-500 mb-1">
+                                                {formatChatTime(chat.createdAt)}
+                                            </div>
+                                            <div className="flex items-center">
+                                                <div className={`w-2 h-2 rounded-full mr-2 ${chat.isConnected ? 'bg-green-500' : 'bg-red-500'
+                                                    }`}></div>
+                                                <span className="text-xs text-gray-500">
+                                                    {chat.messages.length} mesaj
+                                                </span>
+                                            </div>
+                                        </div>
+                                        {chats.length > 1 && (
+                                            <button
+                                                onClick={(e) => deleteChat(chat.id, e)}
+                                                className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 p-1 transition-all"
+                                            >
+                                                <X className="w-4 h-4" />
+                                            </button>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+
                     {/* Chat Area */}
                     <div className="lg:col-span-3">
-                        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+                        <div className="bg-white rounded-2xl shadow-xl overflow-hidden border border-sky-200">
+                            {/* Chat Header */}
+                            <div className="bg-gradient-to-r from-sky-50 to-cyan-50 p-4 border-b border-sky-200">
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <h3 className="font-semibold text-gray-800">
+                                            {activeChat?.title || 'Sohbet Seçin'}
+                                        </h3>
+                                        <div className="flex items-center mt-1">
+                                            <div className={`w-2 h-2 rounded-full mr-2 ${activeChat?.isConnected ? 'bg-green-500' : 'bg-red-500'
+                                                }`}></div>
+                                            <span className="text-xs text-gray-500">
+                                                {activeChat?.messages.length || 0} mesaj
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             {/* Messages Area */}
-                            <div className="h-96 lg:h-[500px] overflow-y-auto p-6 bg-gray-50/50">
+                            <div className="h-[480px] overflow-y-auto p-6 bg-gradient-to-b from-sky-50/30 to-blue-50/30">
                                 <div className="space-y-4">
-                                    {messages.map((message, index) => (
+                                    {activeChat?.messages.map((message, index) => (
                                         <div
                                             key={index}
                                             className={`flex items-start space-x-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'
@@ -259,22 +414,28 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
 
                                             <div
                                                 className={`max-w-xs sm:max-w-md lg:max-w-lg px-4 py-3 rounded-2xl ${message.role === 'user'
-                                                        ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white ml-auto'
+                                                        ? 'bg-gradient-to-r from-sky-600 to-cyan-600 text-white ml-auto'
                                                         : message.role === 'system'
                                                             ? 'bg-red-50 text-red-800 border border-red-200'
-                                                            : 'bg-white text-gray-800 border border-gray-200 shadow-sm'
+                                                            : 'bg-white text-gray-800 border border-sky-200 shadow-sm'
                                                     }`}
                                             >
                                                 <div className="text-sm leading-relaxed whitespace-pre-wrap">
                                                     {formatMessage(message.content)}
                                                 </div>
-                                                <div className={`text-xs mt-2 flex items-center ${message.role === 'user' ? 'text-blue-200' : 'text-gray-500'
+                                                <div className={`text-xs mt-2 flex items-center ${message.role === 'user' ? 'text-sky-200' : 'text-gray-500'
                                                     }`}>
                                                     <Clock className="inline w-3 h-3 mr-1" />
-                                                    {message.timestamp?.toLocaleTimeString('tr-TR', {
-                                                        hour: '2-digit',
-                                                        minute: '2-digit'
-                                                    })}
+                                                    {message.timestamp && message.timestamp.toLocaleTimeString ?
+                                                        message.timestamp.toLocaleTimeString('tr-TR', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        }) :
+                                                        new Date().toLocaleTimeString('tr-TR', {
+                                                            hour: '2-digit',
+                                                            minute: '2-digit'
+                                                        })
+                                                    }
                                                 </div>
                                             </div>
 
@@ -289,16 +450,16 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
                                     {isLoading && (
                                         <div className="flex items-start space-x-3">
                                             <div className="flex-shrink-0 mt-1">
-                                                <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center animate-pulse">
+                                                <div className="w-8 h-8 bg-sky-600 rounded-full flex items-center justify-center animate-pulse">
                                                     <MessageCircle className="w-4 h-4 text-white" />
                                                 </div>
                                             </div>
-                                            <div className="bg-white border border-gray-200 rounded-2xl px-4 py-3 shadow-sm">
+                                            <div className="bg-white border border-sky-200 rounded-2xl px-4 py-3 shadow-sm">
                                                 <div className="flex space-x-1">
-                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"></div>
-                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce"></div>
+                                                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce"
                                                         style={{ animationDelay: '0.1s' }}></div>
-                                                    <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce"
+                                                    <div className="w-2 h-2 bg-sky-400 rounded-full animate-bounce"
                                                         style={{ animationDelay: '0.2s' }}></div>
                                                 </div>
                                             </div>
@@ -316,16 +477,16 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
                                             value={input}
                                             onChange={(e) => setInput(e.target.value)}
                                             onKeyPress={handleKeyPress}
-                                            placeholder="Otel aramak için mesajınızı yazın... (örn: 'İstanbul'da 4 yıldızlı spa'lı otel arıyorum')"
-                                            className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none transition-all duration-200"
+                                            placeholder="Otel aramak için mesajınızı yazın..."
+                                            className="w-full px-4 py-3 border border-sky-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-sky-500 focus:border-transparent resize-none transition-all duration-200"
                                             rows="2"
-                                            disabled={isLoading || !isConnected}
+                                            disabled={isLoading || !activeChat?.isConnected}
                                         />
                                     </div>
                                     <button
                                         onClick={sendMessage}
-                                        disabled={!input.trim() || isLoading || !isConnected}
-                                        className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:from-gray-400 disabled:to-gray-400 text-white p-3 rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg disabled:shadow-none"
+                                        disabled={!input.trim() || isLoading || !activeChat?.isConnected}
+                                        className="bg-gradient-to-r from-sky-600 to-cyan-600 hover:from-sky-700 hover:to-cyan-700 disabled:from-gray-400 disabled:to-gray-400 text-white p-3 rounded-xl transition-all duration-200 flex items-center justify-center shadow-lg disabled:shadow-none"
                                     >
                                         <Send className="w-5 h-5" />
                                     </button>
@@ -335,37 +496,20 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
                     </div>
 
                     {/* Sidebar */}
-                    <div className="space-y-6">
-                        {/* Connection Status */}
-                        <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200">
-                            <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
-                                <div className={`w-2 h-2 rounded-full mr-2 ${isConnected ? 'bg-green-500' : 'bg-red-500'
-                                    }`}></div>
-                                Bağlantı Durumu
-                            </h3>
-                            <div className="text-sm text-gray-600">
-                                {isConnected ? (
-                                    <span className="text-green-600">✓ API ile bağlantı aktif</span>
-                                ) : (
-                                    <div>
-                                        <span className="text-red-600">✗ Bağlantı kurulamadı</span>
-                                        <br />
-                                        <span className="text-xs">{API_BASE_URL}</span>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
+                    <div className="lg:col-span-1 space-y-6">
                         {/* Sample Queries */}
-                        <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200">
-                            <h3 className="font-semibold text-gray-800 mb-3">Örnek Sorular:</h3>
+                        <div className="bg-white rounded-xl p-4 shadow-lg border border-sky-200">
+                            <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
+                                <div className="w-2 h-2 rounded-full mr-2 bg-sky-500"></div>
+                                Örnek Sorular
+                            </h3>
                             <div className="space-y-2">
                                 {sampleQueries.map((query, index) => (
                                     <button
                                         key={index}
                                         onClick={() => handleSampleQuery(query)}
-                                        disabled={isLoading || !isConnected}
-                                        className="w-full text-left px-3 py-2 text-sm bg-blue-50 text-blue-700 rounded-lg hover:bg-blue-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled={isLoading || !activeChat?.isConnected}
+                                        className="w-full text-left px-3 py-2 text-sm bg-sky-50 text-sky-700 rounded-lg hover:bg-sky-100 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed border border-sky-200"
                                     >
                                         {query}
                                     </button>
@@ -374,11 +518,14 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
                         </div>
 
                         {/* Features */}
-                        <div className="bg-white rounded-xl p-4 shadow-lg border border-gray-200">
-                            <h3 className="font-semibold text-gray-800 mb-3">Özellikler:</h3>
+                        <div className="bg-white rounded-xl p-4 shadow-lg border border-sky-200">
+                            <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
+                                <div className="w-2 h-2 rounded-full mr-2 bg-sky-500"></div>
+                                Özellikler
+                            </h3>
                             <div className="space-y-3">
                                 <div className="flex items-center space-x-2">
-                                    <MapPin className="w-4 h-4 text-blue-600" />
+                                    <MapPin className="w-4 h-4 text-sky-600" />
                                     <span className="text-sm text-gray-600">Lokasyon Arama</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
@@ -394,14 +541,22 @@ Lütfen tekrar deneyin veya yeni bir oturum başlatın.`,
                                     <span className="text-sm text-gray-600">Otopark Bilgisi</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <Dog className="w-4 h-4 text-brown-600" />
+                                    <Dog className="w-4 h-4 text-amber-600" />
                                     <span className="text-sm text-gray-600">Pet-Friendly</span>
                                 </div>
                                 <div className="flex items-center space-x-2">
-                                    <Heart className="w-4 h-4 text-red-500" />
+                                    <Heart className="w-4 h-4 text-sky-500" />
                                     <span className="text-sm text-gray-600">AI Önerileri</span>
                                 </div>
                             </div>
+                        </div>
+
+                        {/* Tips */}
+                        <div className="bg-gradient-to-br from-sky-50 to-cyan-50 rounded-xl p-4 border border-sky-200">
+                            <h3 className="font-semibold text-sky-800 mb-2">💡 İpucu</h3>
+                            <p className="text-sm text-sky-700">
+                                Daha iyi sonuçlar için şehir adı, tarih aralığı ve tercihlerinizi belirtin.
+                            </p>
                         </div>
                     </div>
                 </div>

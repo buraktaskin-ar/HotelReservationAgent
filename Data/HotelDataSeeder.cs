@@ -11,13 +11,14 @@ public class HotelDataSeeder
         yield return CreateGrandPlazaHotel();
         yield return CreateSeasideResort();
         yield return CreateMountainLodge();
-        yield return CreateBusinessInnExpress();
+       // yield return CreateBusinessInnExpress();
         yield return CreateBoutiqueArtHotel();
         yield return CreateFamilyParadiseResort();
         yield return CreateEcoGreenHotel();
-        yield return CreateAirportTransitHotel();
-        yield return CreateLuxuryDesertOasis();
-        yield return CreateHistoricDowntownInn();
+        //yield return CreateAirportTransitHotel();
+        //yield return CreateLuxuryDesertOasis();
+        //yield return CreateHistoricDowntownInn();
+        yield return CreateFamilyOtel();
     }
 
     private Hotel CreateGrandPlazaHotel()
@@ -101,32 +102,32 @@ public class HotelDataSeeder
         };
     }
 
-    private Hotel CreateBusinessInnExpress()
-    {
-        return new Hotel
-        {
-            HotelId = "4",
-            HotelName = "Business Inn Express",
-            City = "Chicago",
-            Country = "USA",
-            Address = "321 Business Park Drive, Chicago, IL 60601",
-            StarRating = 3,
-            PricePerNight = 150.00,
-            Description = "Affordable business hotel near airport and convention center. Free airport shuttle. Ideal for business travelers on a budget.",
-            Amenities = "Free breakfast, Business center, Meeting rooms, Airport shuttle, Printing services, Express laundry, Convenience store, 24-hour front desk",
-            RoomTypes = "Standard, Executive, Junior Suite",
-            CancellationPolicy = "Free cancellation up to 24 hours before check-in. No refund for late cancellations or no-shows.",
-            CheckInCheckOut = "Check-in: 2:00 PM, Check-out: 12:00 PM. 24-hour check-in available.",
-            HouseRules = "No smoking. No pets. Valid credit card required. Government ID required.",
-            NearbyAttractions = "O'Hare Airport (5 miles), McCormick Place Convention Center (3 miles), Downtown Chicago (8 miles)",
-            HasPool = true,
-            HasGym = true,
-            HasSpa = false,
-            PetFriendly = false,
-            HasParking = true,
-            HasWifi = true
-        };
-    }
+    //private Hotel CreateBusinessInnExpress()
+    //{
+    //    return new Hotel
+    //    {
+    //        HotelId = "4",
+    //        HotelName = "Antalya Nightlife Resort & Casino",
+    //        City = "Antalya",
+    //        Country = "Turkey",
+    //        Address = "Konyaaltı Beach Boulevard, Hurma Mahallesi, 07070 Antalya, Turkey",
+    //        StarRating = 5,
+    //        PricePerNight = 280.00,
+    //        Description = "StarRating: 4. Exclusive adults-only resort designed for sophisticated travelers seeking vibrant nightlife and luxury experiences. Premium beachfront location with world-class entertainment and casino facilities.",
+    //        Amenities = "Rooftop nightclub with international DJs and panoramic Mediterranean views, Casino with poker tables, slot machines, blackjack and roulette, Premium all-inclusive bars featuring craft cocktails and premium spirits, Beach club with VIP cabanas and day-bed service, Infinity pool with swim-up bar and underwater music system, Adults-only spa with couples massage suites and Turkish hammam, Fine dining restaurants with celebrity chef concepts, Wine cellar with sommelier-guided tastings, Cigar lounge with premium tobacco selection, Private yacht charter services, Water sports including jet skiing and parasailing, Tennis court with professional coaching, Fitness center with personal training services, 24-hour concierge and room service, Valet parking and luxury car rental, Shopping boutique with designer brands, Beauty salon and barber services, Business center with meeting facilities for corporate events",
+    //        RoomTypes = "Penthouse Suite, VIP Ocean View Suite, Premium Balcony Room, Deluxe Adult Room",
+    //        CancellationPolicy = "Premium flexibility for discerning guests: Complimentary cancellation up to 7 days before arrival for all suite bookings and 48 hours for standard rooms. Cancellations made between 7-3 days prior to check-in for suites incur 30% of total booking value. Standard room cancellations between 48-24 hours incur 50% penalty of first night rate. All cancellations less than 24 hours or no-shows are charged 100% of booking value. VIP members enjoy extended cancellation periods and reduced penalties. Special packages including casino credits and nightclub reservations have separate cancellation terms. Travel insurance is highly recommended for international guests. Corporate and group bookings have customized cancellation policies based on event size and booking value.",
+    //        CheckInCheckOut = "Check-in: 3:00 PM, Check-out: 1:00 PM. VIP check-in available. Late check-out until 6:00 PM for suite guests.",
+    //        HouseRules = "Adults-only policy strictly enforced (minimum age 21 years): Valid government-issued photo identification required for all guests at check-in and verification of age for access to gaming and alcohol services. Smart casual dress code required in all restaurants and bars after 6:00 PM - no swimwear, flip-flops, or athletic wear permitted in dining venues. Formal attire required in casino and nightclub areas - jackets recommended for men, elegant attire for ladies. Smoking permitted only in designated outdoor areas and cigar lounge - all indoor areas are non-smoking including guest rooms and balconies. Responsible gaming and drinking policies strictly enforced - management reserves right to refuse service or ask guests to leave premises. Noise levels must be respectful of other guests, especially between midnight and 8:00 AM in accommodation areas. Maximum occupancy limits enforced in all room categories. Credit card authorization required for incidental charges including casino credits, spa services, and premium dining experiences.",
+    //        NearbyAttractions = "Konyaaltı Beach (direct access) - pristine Mediterranean coastline with beach clubs, water sports, and sunset cocktail venues perfect for romantic evenings, Old Town Antalya (Kaleiçi) (15 minutes) - historic quarter featuring rooftop bars, boutique nightclubs, traditional Turkish restaurants, and atmospheric cobblestone streets ideal for evening strolls, Antalya Marina (20 minutes) - upscale waterfront district with luxury yacht charters, sophisticated dining establishments, designer shopping, and vibrant nightlife scene, Club Inferno Mega Disco (10 minutes) - one of Turkey's largest nightclubs featuring international DJs, VIP bottle service, and themed party nights, Olympos Cable Car (45 minutes) - scenic mountain railway offering breathtaking sunset views and romantic dinner experiences at 2,365 meters altitude, Düden Waterfalls Upper Falls (30 minutes) - spectacular natural attraction with evening illumination and nearby wine bars for romantic sunset viewing, Antalya Archaeological Museum (25 minutes) - world-class collection of ancient artifacts with evening cultural events and wine receptions, Phaselis Ancient City (60 minutes) - romantic beachside ruins perfect for day trips combined with exclusive beach club experiences and private yacht access",
+    //        HasPool = true,
+    //        HasGym = true,
+    //        HasSpa = true,
+    //        PetFriendly = false,
+    //        HasParking = true,
+    //        HasWifi = true
+    //    };
+    //}
 
     private Hotel CreateBoutiqueArtHotel()
     {
@@ -209,84 +210,113 @@ public class HotelDataSeeder
         };
     }
 
-    private Hotel CreateAirportTransitHotel()
-    {
-        return new Hotel
-        {
-            HotelId = "8",
-            HotelName = "Airport Transit Hotel",
-            City = "Atlanta",
-            Country = "USA",
-            Address = "100 Airport Terminal Road, Atlanta, GA 30320",
-            StarRating = 3,
-            PricePerNight = 120.00,
-            Description = "Convenient airport hotel inside terminal. Perfect for layovers and early flights. Soundproof rooms. 24-hour operations.",
-            Amenities = "24-hour restaurant, Business center, Day rooms available, Shower facilities, Flight information displays, Wake-up service, Express breakfast",
-            RoomTypes = "Standard, Day Room (hourly), Overnight, Executive",
-            CancellationPolicy = "Free cancellation up to 6 hours before check-in. No refund within 6 hours. Day rooms: no refund within 2 hours.",
-            CheckInCheckOut = "Check-in: Any time, Check-out: Flexible. Day rooms available in 4-hour blocks.",
-            HouseRules = "No smoking. Quiet zones enforced. Luggage must be with owner. Airport security rules apply.",
-            NearbyAttractions = "Inside Hartsfield-Jackson Airport, Downtown Atlanta (10 miles), Georgia Aquarium (11 miles)",
-            HasPool = false,
-            HasGym = false,
-            HasSpa = false,
-            PetFriendly = false,
-            HasParking = false,
-            HasWifi = true
-        };
-    }
+    //private Hotel CreateAirportTransitHotel()
+    //{
+    //    return new Hotel
+    //    {
+    //        HotelId = "8",
+    //        HotelName = "Airport Transit Hotel",
+    //        City = "Atlanta",
+    //        Country = "USA",
+    //        Address = "100 Airport Terminal Road, Atlanta, GA 30320",
+    //        StarRating = 3,
+    //        PricePerNight = 120.00,
+    //        Description = "Convenient airport hotel inside terminal. Perfect for layovers and early flights. Soundproof rooms. 24-hour operations.",
+    //        Amenities = "24-hour restaurant, Business center, Day rooms available, Shower facilities, Flight information displays, Wake-up service, Express breakfast",
+    //        RoomTypes = "Standard, Day Room (hourly), Overnight, Executive",
+    //        CancellationPolicy = "Free cancellation up to 6 hours before check-in. No refund within 6 hours. Day rooms: no refund within 2 hours.",
+    //        CheckInCheckOut = "Check-in: Any time, Check-out: Flexible. Day rooms available in 4-hour blocks.",
+    //        HouseRules = "No smoking. Quiet zones enforced. Luggage must be with owner. Airport security rules apply.",
+    //        NearbyAttractions = "Inside Hartsfield-Jackson Airport, Downtown Atlanta (10 miles), Georgia Aquarium (11 miles)",
+    //        HasPool = false,
+    //        HasGym = false,
+    //        HasSpa = false,
+    //        PetFriendly = false,
+    //        HasParking = false,
+    //        HasWifi = true
+    //    };
+    //}
 
-    private Hotel CreateLuxuryDesertOasis()
-    {
-        return new Hotel
-        {
-            HotelId = "9",
-            HotelName = "Luxury Desert Oasis",
-            City = "Scottsdale",
-            Country = "USA",
-            Address = "789 Desert Bloom Road, Scottsdale, AZ 85260",
-            StarRating = 5,
-            PricePerNight = 550.00,
-            Description = "Exclusive desert resort with championship golf courses. World-class spa with indigenous treatments. Stunning sunset views.",
-            Amenities = "3 Golf courses, Full-service spa, 6 pools, Tennis courts, 4 restaurants, Poolside cabanas, Helicopter tours, Personal butler service",
-            RoomTypes = "Casita, Villa, Presidential Suite, Penthouse",
-            CancellationPolicy = "Cancellation requires 14 days notice for full refund. 50% refund within 14 days. No refund within 72 hours. Holidays require 30 days notice.",
-            CheckInCheckOut = "Check-in: 4:00 PM, Check-out: 12:00 PM. Private jet arrivals accommodated.",
-            HouseRules = "Resort casual dress code. No children under 16 in spa. Golf course dress code enforced. Reservation required for restaurants.",
-            NearbyAttractions = "Camelback Mountain (5 miles), Old Town Scottsdale (3 miles), Desert Botanical Garden (7 miles)",
-            HasPool = true,
-            HasGym = true,
-            HasSpa = true,
-            PetFriendly = false,
-            HasParking = true,
-            HasWifi = true
-        };
-    }
+    //private Hotel CreateLuxuryDesertOasis()
+    //{
+    //    return new Hotel
+    //    {
+    //        HotelId = "9",
+    //        HotelName = "Luxury Desert Oasis",
+    //        City = "Scottsdale",
+    //        Country = "USA",
+    //        Address = "789 Desert Bloom Road, Scottsdale, AZ 85260",
+    //        StarRating = 5,
+    //        PricePerNight = 550.00,
+    //        Description = "Exclusive desert resort with championship golf courses. World-class spa with indigenous treatments. Stunning sunset views.",
+    //        Amenities = "3 Golf courses, Full-service spa, 6 pools, Tennis courts, 4 restaurants, Poolside cabanas, Helicopter tours, Personal butler service",
+    //        RoomTypes = "Casita, Villa, Presidential Suite, Penthouse",
+    //        CancellationPolicy = "Cancellation requires 14 days notice for full refund. 50% refund within 14 days. No refund within 72 hours. Holidays require 30 days notice.",
+    //        CheckInCheckOut = "Check-in: 4:00 PM, Check-out: 12:00 PM. Private jet arrivals accommodated.",
+    //        HouseRules = "Resort casual dress code. No children under 16 in spa. Golf course dress code enforced. Reservation required for restaurants.",
+    //        NearbyAttractions = "Camelback Mountain (5 miles), Old Town Scottsdale (3 miles), Desert Botanical Garden (7 miles)",
+    //        HasPool = true,
+    //        HasGym = true,
+    //        HasSpa = true,
+    //        PetFriendly = false,
+    //        HasParking = true,
+    //        HasWifi = true
+    //    };
+    //}
 
-    private Hotel CreateHistoricDowntownInn()
+    //private Hotel CreateHistoricDowntownInn()
+    //{
+    //    return new Hotel
+    //    {
+    //        HotelId = "10",
+    //        HotelName = "Historic Downtown Inn",
+    //        City = "Boston",
+    //        Country = "USA",
+    //        Address = "42 Heritage Street, Boston, MA 02109",
+    //        StarRating = 4,
+    //        PricePerNight = 295.00,
+    //        Description = "Restored 19th-century building in historic district. Walking distance to Freedom Trail. Combines historic charm with modern comfort.",
+    //        Amenities = "Library lounge, Historic tours, Afternoon tea service, Antique furnishings, Modern business center, Curated art collection, Wine cellar",
+    //        RoomTypes = "Classic, Heritage Suite, Governor's Suite",
+    //        CancellationPolicy = "Standard rate: 48-hour cancellation policy. Advanced purchase rate: non-refundable with 15% discount.",
+    //        CheckInCheckOut = "Check-in: 3:00 PM, Check-out: 11:00 AM. Complimentary luggage storage.",
+    //        HouseRules = "No smoking in historic building. Respect historic artifacts. Quiet hours 10 PM - 7 AM. Professional photography requires permission.",
+    //        NearbyAttractions = "Freedom Trail (0 miles), Boston Common (0.3 miles), Faneuil Hall (0.5 miles), North End (0.4 miles)",
+    //        HasPool = false,
+    //        HasGym = true,
+    //        HasSpa = false,
+    //        PetFriendly = true,
+    //        HasParking = true,
+    //        HasWifi = true
+    //    };
+    //}
+
+    private Hotel CreateFamilyOtel()
     {
         return new Hotel
         {
-            HotelId = "10",
-            HotelName = "Historic Downtown Inn",
-            City = "Boston",
-            Country = "USA",
-            Address = "42 Heritage Street, Boston, MA 02109",
+            HotelId = "11",
+            HotelName = "Antalya Kids Paradise Family Resort",
+            City = "Antalya",
+            Country = "Turkey",
+            Address = "Belek Tourism Center, Serik District, 07506 Antalya, Turkey",
             StarRating = 4,
-            PricePerNight = 295.00,
-            Description = "Restored 19th-century building in historic district. Walking distance to Freedom Trail. Combines historic charm with modern comfort.",
-            Amenities = "Library lounge, Historic tours, Afternoon tea service, Antique furnishings, Modern business center, Curated art collection, Wine cellar",
-            RoomTypes = "Classic, Heritage Suite, Governor's Suite",
-            CancellationPolicy = "Standard rate: 48-hour cancellation policy. Advanced purchase rate: non-refundable with 15% discount.",
-            CheckInCheckOut = "Check-in: 3:00 PM, Check-out: 11:00 AM. Complimentary luggage storage.",
-            HouseRules = "No smoking in historic building. Respect historic artifacts. Quiet hours 10 PM - 7 AM. Professional photography requires permission.",
-            NearbyAttractions = "Freedom Trail (0 miles), Boston Common (0.3 miles), Faneuil Hall (0.5 miles), North End (0.4 miles)",
-            HasPool = false,
-            HasGym = true,
+            PricePerNight = 220.00,
+            Description = "12/12/2025 ve 15/12/2025 arası musait 404 numaralı oda.  StarRating: 4.  Ultimate family destination specifically designed for children's happiness and family bonding. Every corner of our resort celebrates childhood with magical experiences and unforgettable memories for the whole family.",
+            Amenities = "Massive children's water park with 15 different slides including toddler-safe mini slides and thrilling tube slides for older kids, Dedicated baby pool with temperature control and soft play features for infants aged 6-24 months, Kids club with age-specific programs: Mini Club (4-7 years), Junior Club (8-12 years), and Teen Zone (13-17 years) with qualified childcare professionals, Interactive playground village with climbing frames, zip lines, trampolines, and adventure courses suitable for all ages, Indoor soft play center with ball pits, foam blocks, and sensory play areas for rainy days, Children's cinema showing latest family movies with comfortable bean bag seating and popcorn service, Arts and crafts workshop with pottery classes, painting sessions, jewelry making, and seasonal holiday crafts, Educational mini farm with friendly animals including rabbits, goats, chickens, and ponies for petting and feeding experiences, Professional animation team organizing treasure hunts, magic shows, puppet theaters, face painting, and themed costume parties, Family entertainment including circus performances, acrobatic shows, and interactive musical concerts, Shallow lagoon-style family pool with water fountains, mushroom showers, and gentle water features, Children's buffet restaurant with kid-friendly international cuisine, healthy options, and fun presentation, Baby care center with high chairs, bottle warmers, baby food preparation area, changing stations, and sterilization facilities, Complimentary stroller and baby equipment rental including cribs, car seats, and baby monitors",
+            RoomTypes = "Family Connecting Rooms, Kids Themed Suites, Baby-Safe Family Rooms, Grand Family Suites",
+            CancellationPolicy = "Family-first flexible cancellation designed for unexpected changes in family plans: Completely free cancellation up to 14 days before arrival for all family bookings regardless of room type or season. Cancellations made between 14-7 days prior to check-in incur only 20% penalty of total booking value, understanding that family schedules can change unexpectedly. Cancellations between 7-3 days before arrival incur 40% penalty of total reservation cost. Last-minute cancellations within 72 hours or no-shows are charged 75% of booking value rather than full amount. Special emergency provisions for child illness, family medical emergencies, or school-related conflicts with doctor's note or official documentation result in full refund regardless of timing. Travel insurance partnerships available at discounted rates for families. Group family bookings for reunions, celebrations, or multiple families traveling together have extended cancellation periods and reduced penalty structures. Seasonal promotions and package deals may have modified cancellation terms clearly stated at time of booking.",
+            CheckInCheckOut = "Family-friendly timing: Check-in starts at 1:00 PM to accommodate family travel schedules, Check-out extended until 1:00 PM to allow relaxed morning routines with children.",
+            HouseRules = "Child-centered environment with comprehensive family safety policies: Children under 16 years of age stay completely free when sharing parents' room with existing bedding arrangements. All pool and water park areas have certified lifeguards on duty during operating hours from 8:00 AM to sunset with additional safety equipment and first aid stations strategically located. Parents and guardians are required to supervise children under 8 years at all times in water areas and playground facilities for safety reasons. Children's wristbands provided at check-in with parent contact information and room numbers for quick identification and safety. Quiet hours respectfully observed between 9:00 PM and 8:00 AM in accommodation areas to ensure all families can maintain healthy sleep schedules for children. Baby-proofing services available upon request including outlet covers, cabinet locks, and corner guards for families with toddlers. No smoking policy throughout entire resort property including all outdoor areas to maintain healthy environment for children and families. Valid identification required for all adults at check-in along with emergency contact information for each child. Resort reserves right to organize rooms to ensure families with similar-aged children are grouped together when possible for enhanced social experiences. All staff members undergo child safety training and background checks to ensure secure environment for young guests.",
+            NearbyAttractions = "Belek Public Beach (5 minutes walk) - safe shallow sandy beach with family lifeguard services, beach toys rental, and children's sand castle building competitions organized daily, The Land of Legends Theme Park (15 minutes) - Turkey's largest theme park featuring roller coasters for all age groups, dolphin shows, aquarium experiences, shopping village, and dedicated areas for toddlers with gentle rides, Antalya Aquarium (35 minutes) - world's largest tunnel aquarium with interactive touch pools, educational programs for children, feeding demonstrations, and 4D cinema experiences featuring ocean adventures, Köprülü Canyon National Park (45 minutes) - family rafting adventures with specially designed safe routes for children over 6, nature walks, picnic areas, and wildlife spotting opportunities perfect for active families, Fire of Anatolia Cultural Show (40 minutes) - spectacular family-friendly cultural performance featuring traditional Turkish dances, costumes, and music suitable for children over 5 years, Düden Waterfalls (30 minutes) - natural wonder with easy walking paths suitable for strollers, picnic areas, playground facilities, and boat trips to see waterfalls from sea perfect for family photos, Antalya Mini City (25 minutes) - miniature replica of Turkey's famous landmarks where children can learn history while having fun, with interactive exhibits and educational treasure hunts, Sandland Sand Sculpture Festival (20 minutes) - incredible sand art exhibition that amazes children and adults alike, with workshops where kids can try creating their own sand sculptures",
+            HasPool = true,
+            HasGym = false,
             HasSpa = false,
             PetFriendly = true,
             HasParking = true,
             HasWifi = true
         };
     }
+
+
 }

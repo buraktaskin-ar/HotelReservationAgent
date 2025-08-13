@@ -11,15 +11,15 @@ public class RoomDataSeeder
         var rooms = new List<Room>();
 
         // Hotel 1 için 3 oda
-        var hotel1 = hotels.First(h => h.HotelId == "1");
+        var hotel1 = hotels.First(h => h.HotelId == "11");
         rooms.AddRange(CreateRoomsForHotel1(hotel1));
 
         // Hotel 2 için 2 oda
-        var hotel2 = hotels.First(h => h.HotelId == "2");
+        var hotel2 = hotels.First(h => h.HotelId == "11");
         rooms.AddRange(CreateRoomsForHotel2(hotel2));
 
         // Hotel 3 için 2 oda
-        var hotel3 = hotels.First(h => h.HotelId == "3");
+        var hotel3 = hotels.First(h => h.HotelId == "11");
         rooms.AddRange(CreateRoomsForHotel3(hotel3));
 
         return rooms;
@@ -35,7 +35,7 @@ public class RoomDataSeeder
                 RoomNumber = "101",
                 Floor = 1,
                 Hotel = hotel,
-                Capacity = 2,
+                Capacity = 1,
                 IsSeaView = false,
                 IsCityView = true,
                 SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
@@ -49,7 +49,7 @@ public class RoomDataSeeder
                 RoomNumber = "301",
                 Floor = 3,
                 Hotel = hotel,
-                Capacity = 1,
+                Capacity = 2,
                 IsSeaView = false,
                 IsCityView = true,
                 SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
@@ -63,7 +63,7 @@ public class RoomDataSeeder
                 RoomNumber = "505",
                 Floor = 5,
                 Hotel = hotel,
-                Capacity = 2,
+                Capacity = 3,
                 IsSeaView = false,
                 IsCityView = true,
                 SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
@@ -84,7 +84,7 @@ public class RoomDataSeeder
                 RoomNumber = "205",
                 Floor = 2,
                 Hotel = hotel,
-                Capacity = 2,
+                Capacity = 1,
                 IsSeaView = true,
                 IsCityView = false,
                 SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
@@ -112,7 +112,7 @@ public class RoomDataSeeder
                 RoomNumber = "301",
                 Floor = 3,
                 Hotel = hotel,
-                Capacity = 1,
+                Capacity = 3,
                 IsSeaView = true,
                 IsCityView = false,
                 SeaViewSurcharge = RoomPricing.SeaViewSurcharge,
@@ -145,7 +145,7 @@ public class RoomDataSeeder
             {
                 Id = 7,
                 RoomNumber = "304",
-                Floor = 3,
+                Floor = 2,
                 Hotel = hotel,
                 Capacity = 2,
                 IsSeaView = false,

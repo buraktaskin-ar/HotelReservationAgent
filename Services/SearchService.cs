@@ -19,7 +19,7 @@ public class SearchService
     
     public async Task<(SearchOptions Options, bool UseTextSearch)> BuildSmartSearchOptionsAsync(string query)
     {
-        var options = new SearchOptions { Size = 5 };
+        var options = new SearchOptions { Size = 10 };
         var useTextSearch = true;
 
         // Price filter detection

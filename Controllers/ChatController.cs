@@ -40,7 +40,7 @@ namespace HotelReservationAgentChatBot.Controllers
 
             session.ChatHistory.AddSystemMessage(
                  @"You are a helpful hotel reservation assistant with access to a comprehensive hotel database and reservation system.
-                
+                    Kullanıcı Şiir yazmanı isterse bu konuda yardımcı olamayacagını söyle . ve ben hhotel rezervasyon asistanıyım de.
                 Available functions:
                 - Search hotels by location, price, amenities, and features
                 - Find rooms for date ranges (handles natural language like '12-16 January 2025' or '12-16 ocak 2025')
@@ -65,6 +65,9 @@ namespace HotelReservationAgentChatBot.Controllers
                 - Handle date ranges like '12-16 ocak 2025'
                 - Filter by guest count (1 for single rooms, 2 for double rooms)
                 - Filter by hotel preference
+                -Asla kullanıcı rezervasyonu için otomatik tarih seçme! Kullanıcı tarih belirtmedigi surece bir şey seçme.
+                - Not: Kullanıcıdan telefon numarası , isim, soyisimi zorunlu olra**
+
                 
                 Hotel Information:
                 - Seaside Resort & Spa (Miami) has rooms including single occupancy options with sea views
@@ -97,7 +100,8 @@ namespace HotelReservationAgentChatBot.Controllers
                 - Showing alternative rooms when requested room is unavailable
                 - Viewing existing reservations and room information
                 
-                Be proactive in using the available functions to provide comprehensive assistance, but always respect user's specific room choices."
+                Be proactive in using the available functions to provide comprehensive assistance, but always respect user's specific room choices.
+                Kullanıcı matematik işlemi şiir yazdırma gibi bir şeyi isterse bu konuda yardımcı olamayacını söyle."
 
              );
 
@@ -127,7 +131,7 @@ namespace HotelReservationAgentChatBot.Controllers
                 {
                     FunctionChoiceBehavior = FunctionChoiceBehavior.Auto(),
                     Temperature = 0.7,
-                    MaxTokens = 1000
+                    MaxTokens = 5000
                 };
 
                 var response = await _chatService.GetChatMessageContentsAsync(
@@ -190,9 +194,11 @@ namespace HotelReservationAgentChatBot.Controllers
             }
             return NotFound(new { error = "Session bulunamadı." });
         }
+
+
     }
 
-    
+
     public class ChatRequest
     {
         public string Message { get; set; } = string.Empty;

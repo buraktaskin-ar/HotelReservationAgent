@@ -6,7 +6,7 @@ namespace HotelReservationAgentChatBot.Services;
 public interface IReservationService
 {
     Task<Reservation> CreateReservationAsync(int personId, string hotelId, int roomId, DateTime checkIn, DateTime checkOut);
-    Task<List<Reservation>> GetAllReservationsAsync();
+  
     Task<bool> IsRoomAvailableAsync(int roomId, DateTime checkIn, DateTime checkOut);
     Task<List<Room>> GetAllRoomsAsync();
     Task<Room?> GetRoomAsync(int roomId);
@@ -86,10 +86,7 @@ public class ReservationService : IReservationService
         return reservation;
     }
 
-    public async Task<List<Reservation>> GetAllReservationsAsync()
-    {
-        return await Task.FromResult(_reservations.ToList());
-    }
+   
 
     public async Task<List<Room>> GetAllRoomsAsync()
     {
