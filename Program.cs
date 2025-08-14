@@ -67,15 +67,14 @@ IKernelBuilder kernelBuilder = Kernel.CreateBuilder()
 // Create service instances
 var reservationService = new ReservationService();
 var personService = new PersonService(reservationService);
-var hotelService = new HotelService(); // Yeni HotelService eklendi
 
 // Add plugins to kernel
 kernelBuilder.Plugins.AddFromObject(new HotelRagSearchPlugin(searchClient, searchService, embeddingService));
-kernelBuilder.Plugins.AddFromObject(new HotelServicePlugin(hotelService)); // Yeni HotelServicePlugin eklendi
 kernelBuilder.Plugins.AddFromObject(new ReservationPlugin(reservationService));
 kernelBuilder.Plugins.AddFromObject(new PersonPlugin(personService));
 kernelBuilder.Plugins.AddFromObject(new RoomPlugin(reservationService));
 kernelBuilder.Plugins.AddFromObject(new DateRangePlugin(reservationService));
+kernelBuilder.Plugins.AddFromObject(new AutoReservationPlugin(reservationService, personService)); // Otomatik rezervasyon plugin'i
 
 Kernel kernel = kernelBuilder.Build();
 
@@ -90,7 +89,6 @@ webAppBuilder.Services.AddSingleton(chatCompletionService);
 webAppBuilder.Services.AddSingleton(searchService);
 webAppBuilder.Services.AddSingleton<IReservationService>(reservationService);
 webAppBuilder.Services.AddSingleton<IPersonService>(personService);
-webAppBuilder.Services.AddSingleton<IHotelService>(hotelService); // Yeni HotelService DI eklendi
 
 // Session storage
 webAppBuilder.Services.AddSingleton<IChatSessionService, ChatSessionService>();

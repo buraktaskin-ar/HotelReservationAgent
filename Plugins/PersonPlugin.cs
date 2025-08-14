@@ -15,21 +15,24 @@ public class PersonPlugin
         _personService = personService;
     }
 
-    [KernelFunction, Description("Create a new person/customer in the system. This should be done before making a reservation.")]
+    [KernelFunction, Description("Create a new person/customer in the system. This should be done before making a reservation. Phone number is MANDATORY.")]
     public async Task<string> CreatePerson(
         [Description("The person's first name")] string firstName,
         [Description("The person's last name")] string lastName,
-        [Description("The person's email address (optional)")] string? email = null,
-        [Description("The person's phone number (optional)")] string? phone = null)
+        [Description("The person's phone number (MANDATORY - cannot be empty)")] string phone,
+        [Description("The person's email address (optional)")] string? email = null)
     {
         try
         {
-            var person = await _personService.CreatePersonAsync(firstName, lastName, email, phone);
+            if (string.IsNullOrWhiteSpace(phone))
+                throw new ArgumentException("Phone number is required and cannot be empty.", nameof(phone));
+
+            var person = await _personService.CreatePersonAsync(firstName, lastName, phone, email);
 
             return JsonSerializer.Serialize(new
             {
                 success = true,
-                message = "Person created successfully!",
+                message = "Müşteri başarıyla oluşturuldu!",
                 person = new
                 {
                     id = person.Id,
@@ -48,7 +51,8 @@ public class PersonPlugin
             {
                 success = false,
                 error = ex.Message,
-                field = ex.ParamName
+                field = ex.ParamName,
+                requiredInfo = "İsim, soyisim ve telefon numarası zorunludur."
             }, JsonOptions);
         }
         catch (InvalidOperationException ex)
@@ -64,7 +68,7 @@ public class PersonPlugin
             return JsonSerializer.Serialize(new
             {
                 success = false,
-                error = "An unexpected error occurred while creating the person.",
+                error = "Müşteri oluşturulurken beklenmeyen bir hata oluştu.",
                 details = ex.Message
             }, JsonOptions);
         }
